@@ -1,0 +1,25 @@
+/* ---------------------------------------------- the environment layer -- */
+/* One fixed ground behind everything, drifting slowly, so the page reads as
+   one place rather than stacked sections. */
+.env{position:fixed;inset:0;z-index:-2;pointer-events:none;background:var(--canvas)}
+.env::before{content:"";position:absolute;inset:-20%;
+  background:radial-gradient(ellipse 50% 40% at 30% 25%,rgba(143,177,106,.24),transparent 60%),
+             radial-gradient(ellipse 55% 45% at 75% 70%,rgba(220,231,200,.60),transparent 62%);
+  animation:envdrift 96s var(--ease-soft) -30s infinite alternate}
+@keyframes envdrift{from{transform:translate3d(-2%,-1.5%,0) scale(1)}to{transform:translate3d(2%,2%,0) scale(1.06)}}
+
+.dust{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.dust i{position:absolute;width:3px;height:3px;background:var(--rule-2);opacity:.32;
+  animation:dustdrift 64s linear infinite}
+.dust i:nth-child(1){left:12%;top:18%;animation-delay:-4s}
+.dust i:nth-child(2){left:31%;top:64%;animation-delay:-19s;width:2px;height:2px}
+.dust i:nth-child(3){left:54%;top:32%;animation-delay:-33s}
+.dust i:nth-child(4){left:71%;top:76%;animation-delay:-11s;width:2px;height:2px}
+.dust i:nth-child(5){left:86%;top:22%;animation-delay:-47s}
+.dust i:nth-child(6){left:45%;top:88%;animation-delay:-27s;width:2px;height:2px}
+@keyframes dustdrift{
+  0%{transform:translate3d(0,0,0);opacity:0}
+  12%{opacity:.34}
+  88%{opacity:.28}
+  100%{transform:translate3d(28px,-160px,0);opacity:0}}
+

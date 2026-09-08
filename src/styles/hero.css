@@ -1,0 +1,89 @@
+/* ---------------------------------------------------------------- hero -- */
+.hero{position:relative;height:1300vh}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#0C1109}
+.stage-media{position:absolute;inset:0}
+.poster,.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.poster{background-size:cover;background-position:50% 50%;transition:opacity 700ms var(--ease-soft)}
+.stage video{opacity:0;transition:opacity 700ms var(--ease-soft);will-change:transform;transform:translateZ(0)}
+.stage.video-ready video{opacity:1}
+.stage.video-ready .poster{opacity:0}
+.stage.video-failed video{display:none}
+
+/* Layer 1 of the legibility system: one soft base scrim so no frame is ever raw. */
+.scrim{position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 120% 90% at 50% 45%,rgba(9,16,12,.09) 30%,rgba(9,16,12,.66) 100%)}
+.vignette{position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,rgba(9,16,12,.55) 0%,rgba(9,16,12,0) 22%,rgba(9,16,12,0) 68%,rgba(9,16,12,.62) 100%)}
+
+.bands{position:absolute;inset:0;display:grid;place-items:center;padding:0 var(--gutter)}
+.band{position:absolute;inset:0;display:grid;place-items:center;opacity:0;pointer-events:none;
+  color:var(--over-text);text-shadow:var(--tshadow);padding:0 var(--gutter)}
+/* Layer 2: a per-band scrim that deepens only while its band is on screen. */
+.band::before{content:"";position:absolute;inset:-4%;pointer-events:none;
+  opacity:calc(.3 + .7*var(--k,1));
+  background:radial-gradient(ellipse 98% 80% at 50% 50%,rgba(6,11,8,.73) 0%,rgba(6,11,8,.58) 50%,rgba(6,11,8,0) 88%)}
+.band.is-live{pointer-events:auto}
+.band-inner{position:relative;max-width:min(100%,54rem);text-align:center}
+.band h2,.band .h{font-family:var(--font-heading);font-weight:800;font-synthesis:none;
+  font-size:clamp(1.9rem,1.1rem + 3.4vw,4rem);line-height:1.1;text-wrap:balance}
+.band .lede{margin-top:1.4rem;font-size:clamp(1rem,.95rem + .4vw,1.2rem);color:var(--over-text);
+  max-width:44ch;margin-inline:auto;line-height:1.6}
+.band .btn-row{margin-top:2rem;justify-content:center}
+.band .btn{text-shadow:none}
+
+/* Word and character spans, written by the splitter. */
+.w{display:inline-block;white-space:pre}
+.c{display:inline-block}
+
+/* Band 1, drift-down: the words fall as the camera falls. */
+.b1 .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.8,1);opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc))*-30px))}
+/* Band 2, word-punch: the arrival lands. */
+.b2 .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*3,1);
+  --ks:clamp(0,(var(--k,0) - var(--th,0) - var(--sd,.1))*var(--ss,3.2),1);
+  opacity:var(--kc);
+  transform:scale(calc(.62 + (.38 + var(--ov,.12))*var(--kc) - var(--ov,.12)*var(--ks)))}
+.b2 .w.em{--ov:.24;--sd:.16;--ss:2.6;color:#C9DBAE}
+/* Band 3, approach-from-depth: the line grows as the camera pushes through the pane. */
+.b3 .band-inner{--kc:clamp(0,var(--k,0)*1.25,1);opacity:var(--kc);
+  transform:scale(calc(.84 + .16*var(--kc)))}
+/* Band 4, word-by-word rise into a staged settle. */
+.b4 .w{--kc:clamp(0,(var(--k,0) - var(--th,0))*2.6,1);opacity:var(--kc);
+  transform:translateY(calc((1 - var(--kc))*26px))}
+.b4 .lede{--ks:clamp(0,(var(--k,0) - .66)*4,1);opacity:var(--ks);
+  transform:translateY(calc((1 - var(--ks))*18px))}
+.b4 .btn-row{--kb:clamp(0,(var(--k,0) - .78)*5,1);opacity:var(--kb);
+  transform:translateY(calc((1 - var(--kb))*16px))}
+
+/* Layer 4: the chip, for the small readouts over footage. */
+.chip{font:500 .6875rem/1 var(--font-mono);letter-spacing:.12em;text-transform:uppercase;
+  color:var(--over-text);background:rgba(9,16,12,.58);border:1px solid rgba(185,196,174,.26);
+  padding:.55rem .8rem;backdrop-filter:blur(10px);text-shadow:0 1px 3px rgba(5,10,7,.85)}
+.hud{position:absolute;left:var(--gutter);bottom:calc(var(--gutter) + env(safe-area-inset-bottom,0px));
+  display:flex;gap:.5rem;align-items:center;z-index:4}
+.loader{position:absolute;right:var(--gutter);bottom:calc(var(--gutter) + env(safe-area-inset-bottom,0px));
+  z-index:4;width:46px;height:46px;color:#C9DBAE;opacity:0;transition:opacity 400ms var(--ease-soft)}
+.loader.on{opacity:.92}
+.ring circle{transform:rotate(-90deg);transform-origin:50% 50%;transition:stroke-dashoffset 140ms linear}
+.chev{width:22px;height:34px;color:#C9DBAE;opacity:.85;animation:chev 2.6s var(--ease-soft) infinite}
+@keyframes chev{0%,100%{transform:translateY(0);opacity:.5}50%{transform:translateY(7px);opacity:.95}}
+
+/* The static hero. A designed layout, not an apology. */
+.static-hero{display:none;position:relative;min-height:100svh;overflow:hidden;
+  align-items:center;padding:6rem 0 4rem}
+.static-hero .sh-media{position:absolute;inset:0;background-size:cover;background-position:50% 40%}
+.static-hero .sh-scrim{position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(9,16,12,.72),rgba(9,16,12,.45) 45%,rgba(9,16,12,.88))}
+.static-hero .container{position:relative}
+.static-hero h1{font-size:clamp(1.85rem,1.2rem + 3vw,3.1rem);max-width:20ch;color:var(--over-text);text-shadow:var(--tshadow)}
+.static-hero .lede{margin-top:1.25rem;max-width:42ch;color:var(--over-text);text-shadow:var(--tshadow)}
+.static-hero .btn-row{margin-top:2rem}
+
+
+/* ------------------------------------------ the ghost button over footage -- */
+/* .btn-ghost is dark-on-transparent for the beige page and would vanish over
+   the dark footage of either hero, so inside them it takes the over-footage
+   text colour, a light edge and a light hover. */
+.band .btn-ghost,.static-hero .btn-ghost{color:var(--over-text);border-color:rgba(246,241,228,.55)}
+.band .btn-ghost:hover,.static-hero .btn-ghost:hover{color:var(--over-text);border-color:var(--over-text);
+  background:rgba(246,241,228,.14)}

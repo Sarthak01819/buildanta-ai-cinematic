@@ -1,0 +1,15 @@
+/* Page-specific rules for the inner pages. Owned by the pages build; layout, ui and home rules live elsewhere. */
+
+/* Legal pages: the "Last updated" line sits under the h1, before the rule. */
+.page-intro .legal-meta{margin-top:1.25rem}
+
+/* Cards that live inside long-form prose keep their own rhythm. */
+.prose .contact-card h2{margin-top:0}
+.prose .contact-card p{margin-top:0}
+
+/* Why: the plate and the closing buttons follow the prose at container width. */
+.page-body .plate+.btn-row{margin-top:2rem}
+
+/* Proof: reserved slots show the links as muted text, not dead anchors. */
+.project.slot .project-links span{color:var(--text-secondary)}
+.page-body .projects+.prose{margin-top:2.5rem}

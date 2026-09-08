@@ -1,0 +1,24 @@
+/* ------------------------------------------------- the five static gates -- */
+@media (max-width: 720px),
+       (orientation: portrait) and (max-width: 1024px),
+       (orientation: portrait) and (pointer: coarse),
+       (orientation: landscape) and (pointer: coarse) and (max-height: 560px),
+       (prefers-reduced-motion: reduce){
+  .hero{display:none}
+  .static-hero{display:flex}
+}
+
+/* Short scrub-capable windows keep the scrub but lose the overlays. */
+@media (max-height:560px){.hud,.loader{display:none}}
+
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none !important;transition:none !important;
+    animation-delay:0s !important;transition-delay:0s !important}
+  .rise{opacity:1;transform:none}
+  .blockrule i{opacity:1;transform:none}
+  .own{opacity:1;background:var(--panel)}
+  html{scroll-behavior:auto}
+}
+
+/* Pause every loop on a hidden tab. Not inherited, so it has to hit each node. */
+body.paused *,body.paused *::before,body.paused *::after{animation-play-state:paused !important}

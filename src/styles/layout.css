@@ -1,0 +1,45 @@
+/* ------------------------------------------------------------------ nav -- */
+.nav{position:fixed;top:0;left:0;right:0;z-index:60;
+  background:linear-gradient(180deg,rgba(12,17,9,.78),rgba(12,17,9,.40) 62%,rgba(12,17,9,0));
+  backdrop-filter:blur(10px);
+  transition:background 420ms var(--ease-soft),border-color 420ms var(--ease-soft)}
+/* The bar rides dark footage at the top and beige page below it, so it changes
+   with the ground under it rather than fighting one of the two. */
+.nav.solid{background:rgba(240,233,216,.94);border-bottom:1px solid var(--rule)}
+.nav .wordmark{color:var(--over-text)}
+.nav .wordmark span{color:rgba(246,241,228,.74)}
+.nav.solid .wordmark{color:var(--text-primary)}
+.nav.solid .wordmark span{color:var(--text-secondary)}
+.nav-inner{display:flex;align-items:center;gap:1.25rem;min-height:68px}
+.wordmark{display:flex;align-items:baseline;gap:.55rem;text-decoration:none;
+  white-space:nowrap}
+.wordmark b{font:800 1.15rem/1 var(--font-heading);letter-spacing:0;font-synthesis:none}
+.wordmark span{font:500 .625rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase}
+.nav-cta{margin-left:auto}
+
+/* ----------------------------------------------------------------- btn -- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+  min-height:48px;padding:.85rem 1.4rem;border:2px solid transparent;
+  font:600 .95rem/1.2 var(--font-body);letter-spacing:.01em;text-decoration:none;cursor:pointer;
+  transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease),
+             color var(--dur) var(--ease),transform 180ms var(--ease)}
+.btn-primary{background:var(--accent);color:var(--accent-ink);
+  box-shadow:4px 4px 0 rgba(30,43,31,.26);text-shadow:none}
+.btn-primary:hover{background:var(--accent-hover);color:var(--accent-ink);transform:translate(-1px,-1px);
+  box-shadow:5px 5px 0 rgba(30,43,31,.32)}
+.btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(30,43,31,.26)}
+.btn-ghost{background:transparent;color:var(--text-primary);border-color:var(--rule-2);text-shadow:none}
+.btn-ghost:hover{color:var(--text-primary);border-color:var(--accent);background:var(--accent-muted)}
+.nav .btn{min-height:42px;padding:.6rem 1rem;font-size:.875rem;white-space:nowrap}
+/* On a narrow bar the full label wraps to two lines and pushes the header
+   taller, so it drops to the verb. The verb is the whole CTA anyway. */
+.nav-cta .lbl-short{display:none}
+@media (max-width:520px){
+  .nav .btn{padding:.6rem .85rem}
+  .nav-cta .lbl-full{display:none}
+  .nav-cta .lbl-short{display:inline}
+  .wordmark span{display:none}
+}
+.btn-row{display:flex;flex-wrap:wrap;gap:.9rem;align-items:center}
+@media (pointer:coarse){.btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center}}
+

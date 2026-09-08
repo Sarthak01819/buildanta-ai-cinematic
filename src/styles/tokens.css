@@ -1,0 +1,90 @@
+/* Digit-only alias of the unmodified Archivo webfont, so every numeral on the
+   page is Archivo while the letters around it stay in their own face. It sits
+   first in each stack below. Copyright 2020 The Archivo Project Authors,
+   SIL OFL 1.1, licence beside the file. */
+@font-face{font-family:'Buildanta Numbers';font-style:normal;font-display:swap;font-weight:100 900;
+  src:url('/assets/fonts/archivo-latin-var.woff2') format('woff2');unicode-range:U+0030-0039}
+/* The heading face. BoldPixels by Yuki (@YukiPixels), CC BY-SA 4.0, used
+   without modification. The licence asks for credit and a link, both of which
+   are in the footer. One weight only, so synthesis stays off wherever it is used. */
+@font-face{font-family:'BoldPixels';font-style:normal;font-display:swap;font-weight:800;
+  src:url('/assets/fonts/boldpixels.woff2') format('woff2')}
+@font-face{font-family:'Pixelify';font-style:normal;font-display:swap;font-weight:400 700;
+  src:url('/assets/fonts/pixelify-var.woff2') format('woff2-variations')}
+@font-face{font-family:'Archivo';font-style:normal;font-display:swap;font-weight:100 900;
+  src:url('/assets/fonts/archivo-latin-var.woff2') format('woff2-variations')}
+@font-face{font-family:'Archivo';font-style:normal;font-display:swap;font-weight:100 900;
+  src:url('/assets/fonts/rupee-archivo-var.woff2') format('woff2-variations');unicode-range:U+20B9}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-display:swap;font-weight:100 800;
+  src:url('/assets/fonts/jetbrains-mono-latin-var.woff2') format('woff2-variations')}
+@font-face{font-family:'JetBrains Mono';font-style:normal;font-display:swap;font-weight:100 800;
+  src:url('/assets/fonts/rupee-archivo-var.woff2') format('woff2-variations');unicode-range:U+20B9}
+
+:root{
+  /* Beige and light green, sampled from the lit interior walls and the roof
+     moss in the footage. Every text pair is measured, not guessed: body 12.2:1,
+     secondary 5.9:1, the green CTA 5.1:1 against its own label. Light green
+     cannot carry small text on beige, it lands at 2:1, so here it is a surface
+     and an edge and never a label colour. */
+  --canvas:#F0E9D8;
+  --canvas-2:#DCE7C8;
+  --panel:#FBF7EC;
+  --accent:#4A7431;
+  --accent-hover:#3B5E27;
+  --accent-ink:#FBF7EC;
+  --accent-muted:#C9DBAE;
+  --moss:#8FB16A;
+  --stone:#B9C4AE;
+  --text-primary:#1E2B1F;
+  --text-secondary:#4C5C4D;
+  --rule:#D5CDB8;
+  --rule-2:#A9B593;
+
+  /* The hero sits over footage, so its text stays light on the dark scrims
+     that were already audited at 4.6:1 and better. These two serve that layer
+     only, and nothing below the fold uses them. */
+  --over-text:#F6F1E4;
+
+  /* Same four jobs as the main site, in the same order, so the two properties
+     read as one brand. Numbers first in every stack. */
+  --font-numbers:'Buildanta Numbers';
+  --font-heading:var(--font-numbers),'BoldPixels','Archivo',system-ui,sans-serif;
+  --font-display:var(--font-numbers),'Pixelify',ui-monospace,monospace;
+  --font-body:var(--font-numbers),'Archivo',ui-sans-serif,system-ui,sans-serif;
+  --font-mono:var(--font-numbers),'JetBrains Mono',ui-monospace,monospace;
+
+  --ease:cubic-bezier(.16,1,.3,1);
+  --ease-soft:cubic-bezier(.4,0,.2,1);
+  --dur:520ms;
+
+  --gutter:clamp(1.25rem,4vw,3rem);
+  --container:1180px;
+  --section-y:clamp(4.5rem,9vw,8rem);
+
+  --tshadow:0 1px 2px rgba(5,10,7,.95),0 3px 12px rgba(5,10,7,.78),0 10px 44px rgba(5,10,7,.8);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{overflow-x:hidden;overflow-x:clip;scroll-behavior:smooth;scroll-padding-top:5rem;-webkit-text-size-adjust:100%}
+body{overflow-x:hidden;overflow-x:clip;margin:0;background:var(--canvas);color:var(--text-primary);
+  font:400 clamp(1rem,.97rem + .16vw,1.0625rem)/1.65 var(--font-body);
+  overflow-wrap:break-word;-webkit-font-smoothing:antialiased}
+img,svg,video{display:block;max-width:100%}
+h1,h2,h3,h4,p{margin:0}
+h1,h2,h3{font-family:var(--font-heading);font-weight:800;line-height:1.1;
+  font-synthesis:none;text-wrap:balance}
+a{color:var(--accent);text-underline-offset:.22em;text-decoration-thickness:2px}
+a:hover{color:var(--accent-hover)}
+:where(a,button,input,textarea,select,summary,[tabindex]):focus-visible{
+  outline:3px solid var(--accent);outline-offset:3px;border-radius:0}
+::selection{background:var(--accent);color:var(--accent-ink)}
+a,button,summary,input,select,textarea{touch-action:manipulation}
+
+.skip-link{position:absolute;left:-9999px;z-index:200}
+.skip-link:focus{left:1rem;top:1rem;padding:.7rem 1rem;background:var(--accent);color:var(--accent-ink);
+  font:600 .9rem var(--font-body);text-decoration:none}
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;
+  clip-path:inset(50%);white-space:nowrap;border:0}
+
+.container{width:100%;max-width:var(--container);margin-inline:auto;padding-inline:var(--gutter)}
+
