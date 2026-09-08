@@ -1,0 +1,7 @@
+# Keep source files LF on every platform; binaries untouched.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.mp4 binary
+*.woff2 binary
+*.ico binary
