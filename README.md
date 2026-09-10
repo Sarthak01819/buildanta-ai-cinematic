@@ -41,6 +41,9 @@ src/
 scripts/
   prerender.mjs           writes dist/<route>/index.html, 404.html, sitemap, robots
   check-content.mjs       the section 5 content rules, as a script
+  hero/                   the Blender flythrough behind the hero video: build_hero.py
+                          builds and renders the scene, logo-screen.html is the
+                          monitor texture, encode.sh turns frames into the mp4 + stills
 public/
   assets/                 fonts (licences beside them), hero media
   brand/                  the vector mark and favicon set

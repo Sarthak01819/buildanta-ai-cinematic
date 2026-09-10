@@ -54,12 +54,13 @@ export default function ScrubHero() {
               </p>
             </div>
           </div>
-          <div className="band b3" data-a="0.38" data-b="0.58" data-ramp="0.036" aria-hidden="true">
+          <div className="band b3" data-a="0.36" data-b="0.56" data-ramp="0.036" aria-hidden="true">
             <div className="band-inner">
               <p className="h">So we built the room where they get made.</p>
             </div>
           </div>
-          <div className="band b4 is-live" data-a="0.7" data-b="1" aria-hidden="true">
+          {/* The last band waits until the camera has eased back from the full-frame logo to the desk. */}
+          <div className="band b4 is-live" data-a="0.84" data-b="1" aria-hidden="true">
             <div className="band-inner">
               <p className="h" data-split="word">
                 {splitWords('Twenty-eight days at this desk.', seedFor(3))}

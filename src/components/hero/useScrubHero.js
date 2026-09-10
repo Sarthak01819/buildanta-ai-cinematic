@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 /* The media behind the scrub hero. Paths are absolute so every route resolves them. */
 export const VIDEO_URL = '/assets/hero-scrub.mp4'
-export const VIDEO_BYTES = 10391770 /* the real size, used when Content-Length is missing */
+export const VIDEO_BYTES = 9628992 /* the real size, used when Content-Length is missing */
 export const POSTER_URL = '/assets/hero-poster.jpg'
 
 /* The five static gates. The same list as the media query block in motion.css,
@@ -36,9 +36,10 @@ function clamp(v, lo, hi) {
   return Math.min(hi, Math.max(lo, v))
 }
 
+/* Matched to the 25-second render: outside until the glass goes at 40%, inside the hall until the desk reveal. */
 function chapterFor(p) {
-  if (p < 0.33) return CHAPTERS[0]
-  return p < 0.66 ? CHAPTERS[1] : CHAPTERS[2]
+  if (p < 0.38) return CHAPTERS[0]
+  return p < 0.62 ? CHAPTERS[1] : CHAPTERS[2]
 }
 
 /* Old Safari only had addListener on a MediaQueryList. Returns the undo. */
