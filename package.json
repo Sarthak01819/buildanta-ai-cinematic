@@ -20,6 +20,9 @@
     "vite": "^7.1.0"
   },
   "engines": {
-    "node": ">=20.19"
+    "node": "22.x"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true
   }
 }
