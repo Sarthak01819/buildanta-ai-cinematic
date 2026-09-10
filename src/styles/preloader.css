@@ -1,0 +1,50 @@
+/* ------------------------------------------------------ the preloader -- */
+/* A curtain over the first paint. The mark builds up from the ground as the
+   assets arrive, the bar keeps honest count, and the whole sheet lifts away
+   once everything the first screen needs is in memory. It is in the
+   pre-rendered HTML, so it is on screen before any script runs; the inline
+   script in index.html hides it for repeat loads in the same session. */
+.preload{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+  background:var(--canvas);color:var(--text-primary);
+  transition:transform 760ms var(--ease),visibility 0s linear 760ms}
+.preload::before{content:"";position:absolute;inset:-20%;pointer-events:none;
+  background:radial-gradient(ellipse 50% 40% at 30% 25%,rgba(143,177,106,.24),transparent 60%),
+             radial-gradient(ellipse 55% 45% at 75% 70%,rgba(220,231,200,.60),transparent 62%)}
+html.preloaded .preload{display:none}
+html.preloading{overflow:hidden}
+.preload.is-done{transform:translate3d(0,-101%,0);visibility:hidden}
+.preload-inner{position:relative;display:flex;flex-direction:column;align-items:center;gap:1.25rem;
+  width:min(300px,78vw);transition:opacity 300ms var(--ease-soft)}
+.preload.is-done .preload-inner{opacity:0}
+
+.preload-mark{position:relative;width:112px;height:112px}
+.preload-mark svg{position:absolute;inset:0;width:100%;height:100%}
+.preload-mark .ghost{color:var(--stone);opacity:.5;animation:preload-pulse 2.4s var(--ease-soft) infinite}
+.preload-mark .fill{color:var(--accent);
+  clip-path:inset(calc(100% - var(--p,0) * 100%) 0 0 0);transition:clip-path 240ms linear}
+
+.preload-word{display:flex;flex-direction:column;align-items:center;gap:.4rem;text-align:center}
+.preload-word b{font:800 1.55rem/1 var(--font-heading);letter-spacing:0;font-synthesis:none}
+.preload-word span{font:500 .625rem/1 var(--font-mono);letter-spacing:.24em;text-transform:uppercase;
+  color:var(--text-secondary)}
+
+.preload-bar{position:relative;width:100%;height:2px;background:var(--rule);overflow:hidden}
+.preload-bar i{position:absolute;inset:0;background:var(--accent);
+  transform:scaleX(var(--p,0));transform-origin:0 50%;transition:transform 240ms linear}
+/* Before the script attaches there is no count yet, so the bar sweeps instead. */
+.preload:not(.is-live) .preload-bar i{right:auto;width:38%;transform:none;
+  animation:preload-sweep 1.5s var(--ease-soft) infinite}
+
+.preload-status{display:flex;gap:.7rem;font:500 .7rem/1 var(--font-mono);letter-spacing:.16em;
+  text-transform:uppercase;color:var(--text-secondary)}
+.preload-pct{color:var(--text-primary);min-width:3ch;text-align:right}
+
+@keyframes preload-pulse{0%,100%{opacity:.36}50%{opacity:.62}}
+@keyframes preload-sweep{from{transform:translateX(-110%)}to{transform:translateX(290%)}}
+
+@media (prefers-reduced-motion:reduce){
+  .preload{transition:opacity 220ms linear,visibility 0s linear 220ms}
+  .preload.is-done{transform:none;opacity:0}
+  .preload-mark .ghost{animation:none;opacity:.5}
+  .preload:not(.is-live) .preload-bar i{animation:none;width:100%;transform:scaleX(0)}
+}

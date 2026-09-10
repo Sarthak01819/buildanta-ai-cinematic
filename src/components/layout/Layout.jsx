@@ -4,6 +4,7 @@ import Environment from './Environment.jsx'
 import Header from './Header.jsx'
 import Footer from './Footer.jsx'
 import MobileBar from './MobileBar.jsx'
+import Preloader from './Preloader.jsx'
 import ScrollManager from './ScrollManager.jsx'
 import Seo from '../seo/Seo.jsx'
 
@@ -35,6 +36,7 @@ export default function Layout() {
       <MobileBar />
       <Seo />
       <ScrollManager />
+      <Preloader />
     </>
   )
 }

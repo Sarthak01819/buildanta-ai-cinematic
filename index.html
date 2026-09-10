@@ -17,6 +17,10 @@
 -->
 <link rel="preload" href="/assets/fonts/boldpixels.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/archivo-latin-var.woff2" as="font" type="font/woff2" crossorigin>
+<!-- The loading curtain shows once per session. Decided here, before first paint, so a repeat
+     load never flashes it; with scripts off it is simply not shown. -->
+<script>(function(){var c=document.documentElement.classList,s=false;try{s=!!sessionStorage.getItem('bd-preloaded')}catch(e){}c.add(s?'preloaded':'preloading')})()</script>
+<noscript><style>.preload{display:none}</style></noscript>
 </head>
 <body>
 <div id="root"><!--app-html--></div>

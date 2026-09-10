@@ -1,19 +1,10 @@
 import { useEffect } from 'react'
+import { GATES, POSTER_URL, VIDEO_BYTES, VIDEO_URL } from './heroMedia.js'
+import { heroBlob } from './heroCache.js'
+import { onRevealed } from '../layout/preloadState.js'
 
-/* The media behind the scrub hero. Paths are absolute so every route resolves them. */
-export const VIDEO_URL = '/assets/hero-scrub.mp4'
-export const VIDEO_BYTES = 9035316 /* the real size, used when Content-Length is missing */
-export const POSTER_URL = '/assets/hero-poster.jpg'
-
-/* The five static gates. The same list as the media query block in motion.css,
-   which hides the scrub hero and shows the static one wherever any of these match. */
-export const GATES = [
-  '(max-width: 720px)',
-  '(orientation: portrait) and (max-width: 1024px)',
-  '(orientation: portrait) and (pointer: coarse)',
-  '(orientation: landscape) and (pointer: coarse) and (max-height: 560px)',
-  '(prefers-reduced-motion: reduce)',
-]
+/* The media constants live in heroMedia.js now; re-exported so nothing else moved. */
+export { GATES, POSTER_URL, VIDEO_BYTES, VIDEO_URL }
 
 const REDUCE_QUERY = '(prefers-reduced-motion: reduce)'
 const CHAPTERS = ['Outside', 'The window', 'The desk']
@@ -21,7 +12,6 @@ const RING_LENGTH = 126
 const LERP_K = 0.16
 const LOAD_RAMP_MS = 900
 const POSTER_WAIT_MS = 4000
-const WATCHDOG_MS = 20000
 const CHEVRON =
   '<svg class="chev" viewBox="0 0 22 34" aria-hidden="true">' +
   '<path d="M4 12l7 7 7-7" fill="none" stroke="currentColor" stroke-width="3"/>' +
@@ -56,10 +46,10 @@ function listen(mql, fn) {
  * The drive behind the scrub hero, ported from the original page as one
  * effect. It owns: scroll progress into a time-based lerp on rAF, gated seeks
  * on the video, band opacity and `--k` writes, the chapter chip, the load ramp
- * that lets band 1 fall in before any scrolling, the streamed blob fetch
- * behind the progress ring (with its watchdog and the chevron on failure), the
- * five gates that switch the scrub on and off live, and the reduced-motion
- * change that re-applies the mode.
+ * that lets band 1 fall in before any scrolling (held until the preloader has
+ * lifted its curtain), the shared blob download behind the progress ring
+ * (heroCache.js, with the chevron on failure), the five gates that switch the
+ * scrub on and off live, and the reduced-motion change that re-applies the mode.
  *
  * Every DOM node arrives through a ref and is only touched inside the effect,
  * so the component renders the same on the server and in the browser. The
@@ -115,9 +105,9 @@ export function useScrubHero(refs) {
     let failed = false
     let posterImg = null
     let posterTimer = null
-    let ctrl = null
-    let watchdog = null
+    let blobSub = null
     let blobUrl = null
+    let undoReveal = () => {}
 
     function heroProgress() {
       const range = hero.offsetHeight - window.innerHeight
@@ -229,46 +219,18 @@ export function useScrubHero(refs) {
       stage.classList.add('video-failed')
     }
 
-    function armWatchdog() {
-      window.clearTimeout(watchdog)
-      watchdog = window.setTimeout(() => {
-        if (ctrl) ctrl.abort()
-      }, WATCHDOG_MS)
-    }
-
+    /* The download itself is shared with the preloader (heroCache.js): if the
+       curtain already pulled the footage in, this resolves at once. */
     async function loadHeroBlob() {
-      if (!window.fetch || !window.AbortController) throw new Error('no fetch')
-      ctrl = new AbortController()
-      const chunks = []
-      let got = 0
-      let lastRing = 0
-      armWatchdog()
-      try {
-        const res = await fetch(VIDEO_URL, { signal: ctrl.signal, priority: 'low' })
-        if (!res.ok || !res.body) throw new Error('bad response')
-        const total = Number(res.headers.get('Content-Length')) || VIDEO_BYTES
-        const reader = res.body.getReader()
-        for (;;) {
-          const r = await reader.read()
-          if (r.done || disposed) break
-          armWatchdog()
-          chunks.push(r.value)
-          got += r.value.length
-          const frac = Math.min(1, got / total)
-          const now = performance.now()
-          if (now - lastRing > 100 || frac === 1) {
-            lastRing = now
-            if (ring) ring.style.setProperty('--ld', String(Math.round(RING_LENGTH * (1 - frac))))
-          }
-        }
-      } finally {
-        window.clearTimeout(watchdog)
-        watchdog = null
-      }
+      blobSub = heroBlob((frac) => {
+        if (disposed || !ring) return
+        ring.style.setProperty('--ld', String(Math.round(RING_LENGTH * (1 - frac))))
+      })
+      const blob = await blobSub.promise
       if (disposed) return
       if (ring) ring.style.setProperty('--ld', '0')
       if (loader) loader.classList.remove('on')
-      blobUrl = URL.createObjectURL(new Blob(chunks, { type: 'video/mp4' }))
+      blobUrl = URL.createObjectURL(blob)
       video.addEventListener('canplay', onCanPlay, { once: true })
       video.src = blobUrl
       video.load()
@@ -287,13 +249,21 @@ export function useScrubHero(refs) {
       loadHeroBlob().catch(failVideo)
     }
 
-    /* The poster goes first and the footage waits for it, or for four seconds. */
+    /* The poster goes first and the footage waits for it, or for four seconds.
+       Band 1's fall-in waits for the preloader's curtain, so it plays when seen. */
     function initHeroOnce() {
       if (heroInit) return
       heroInit = true
       if (poster) poster.style.backgroundImage = `url('${POSTER_URL}')`
-      loadStart = performance.now()
-      loadRamping = true
+      undoReveal = onRevealed(() => {
+        if (disposed) return
+        loadStart = performance.now()
+        loadRamping = true
+        if (rafId === null && heroOnScreen && scrubOn) {
+          lastTick = 0
+          rafId = window.requestAnimationFrame(tick)
+        }
+      })
       posterImg = new Image()
       posterImg.onload = startBlobFetch
       posterImg.onerror = startBlobFetch
@@ -378,8 +348,8 @@ export function useScrubHero(refs) {
         posterImg = null
       }
       window.clearTimeout(posterTimer)
-      window.clearTimeout(watchdog)
-      if (ctrl) ctrl.abort()
+      undoReveal()
+      if (blobSub) blobSub.unsubscribe()
       if (blobUrl) {
         video.removeAttribute('src')
         video.load()
