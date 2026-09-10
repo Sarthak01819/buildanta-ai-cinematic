@@ -12,9 +12,9 @@ export const MANIFEST = [
   { kind: 'font', spec: '400 1em "JetBrains Mono"', bytes: 40404, label: 'Type' },
   { kind: 'font', spec: '400 1em "Pixelify"', bytes: 12016, label: 'Type' },
   { kind: 'image', url: '/brand/buildanta-mark.svg', bytes: 7761, label: 'Stills' },
-  { kind: 'image', url: POSTER_URL, bytes: 234872, label: 'Stills' },
-  { kind: 'image', url: '/assets/hero-threshold.jpg', bytes: 66926, label: 'Stills' },
-  { kind: 'image', url: '/assets/hero-ending.jpg', bytes: 57115, label: 'Stills' },
+  { kind: 'image', url: POSTER_URL, bytes: 247718, label: 'Stills' },
+  { kind: 'image', url: '/assets/hero-threshold.jpg', bytes: 87783, label: 'Stills' },
+  { kind: 'image', url: '/assets/hero-ending.jpg', bytes: 83656, label: 'Stills' },
   { kind: 'video', url: VIDEO_URL, bytes: VIDEO_BYTES, label: 'Flythrough' },
 ]
 

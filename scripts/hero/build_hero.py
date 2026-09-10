@@ -1,13 +1,18 @@
 # BUILDANTA hero flythrough, city version. Blender 5.1, background mode.
-#   blender -b --python build_city.py -- MODE OUTDIR KENNEY_DIR MODELS_DIR LOGO_PNG [start-end]
+#   blender -b --python build_hero.py -- MODE OUTDIR KENNEY_DIR MODELS_DIR LOGO_PNG [start-end]
+# MODE: anim (600 frames), stills (half-size stills at STILLS=t,t,... seconds), sunprobe (sky check).
 # Hero building: generated in place, a concrete-and-glass office tower whose curtain wall is a procedural
 # grid, so the two windows the camera flies through are the facade's own cells on its own floor line.
 # City: procedurally generated office towers on a street grid, kept clear of the camera line.
+# Surfaces: Poly Haven CC0 photo textures (fetch_textures.py -> TEX_DIR) on box-projected UVs, an HDRI sky.
 # Desk: "Desk by dook" (CC-BY 3.0, poly.pizza/m/EtJlOllzbf). Plants and shelf: Kenney Furniture Kit (CC0).
 # Sign texture: MARK_PNG env var (white mark on transparent). Monitor texture: LOGO_PNG argument.
 # Output: 600 frames, 1536x864, 24 fps, 25 s.
-import bpy, bmesh, math, os, sys, json, random
+import bpy, math, os, sys, json, random
 from mathutils import Vector, Matrix
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from materials import (TEXDIR, setp, box_uv, pbr_material, plain_material, road_material, curtain_wall_material,
+                       ceiling_material, carpet_material)
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 MODE, OUT, ASSETS, DL, LOGO = argv[:5]
@@ -29,41 +34,31 @@ sc.render.resolution_percentage = 100
 try: sc.render.engine = "BLENDER_EEVEE_NEXT"
 except Exception: sc.render.engine = "BLENDER_EEVEE"
 ee = sc.eevee
-def setp(obj, name, val):
-    try: setattr(obj, name, val); return True
-    except Exception: return False
 setp(ee, "taa_render_samples", 48 if MODE == "anim" else 32)
 setp(ee, "use_shadows", True); setp(ee, "shadow_ray_count", 2); setp(ee, "shadow_step_count", 4)
 setp(ee, "use_raytracing", True)
-try: ee.ray_tracing_options.resolution_scale = "2"; ee.ray_tracing_options.trace_max_roughness = 0.6
+try:
+    ee.ray_tracing_options.resolution_scale = os.environ.get("RT_SCALE", "2"); ee.ray_tracing_options.trace_max_roughness = 0.6
 except Exception: pass
+setp(ee, "use_fast_gi", True); setp(ee, "fast_gi_method", "GLOBAL_ILLUMINATION"); setp(ee, "fast_gi_resolution", "2")
 setp(ee, "volumetric_tile_size", "8"); setp(ee, "volumetric_samples", 32)
 setp(ee, "volumetric_start", 0.3); setp(ee, "volumetric_end", 40.0)
+setp(ee, "clamp_surface_indirect", 12.0)
 sc.render.use_motion_blur = False
 vs = sc.view_settings
 for vt in ("AgX", "Filmic"):
     if setp(vs, "view_transform", vt): break
 for look in ("AgX - Punchy", "AgX - Medium High Contrast", "None"):
     if setp(vs, "look", look): break
-vs.exposure = 0.5; vs.gamma = 1.0
+vs.exposure = float(os.environ.get("EXPOSURE", "0.5")); vs.gamma = 1.0
 
 # ------------------------------------------------------------------ helpers
 def link(o):
     sc.collection.objects.link(o); return o
-def new_mat(name, color=(0.8, 0.8, 0.8, 1), rough=0.6, metal=0.0, emit=None, emit_strength=0.0, alpha=1.0):
-    m = bpy.data.materials.new(name); m.use_nodes = True
-    b = m.node_tree.nodes["Principled BSDF"]
-    b.inputs["Base Color"].default_value = color; b.inputs["Roughness"].default_value = rough; b.inputs["Metallic"].default_value = metal
-    if emit is not None:
-        b.inputs["Emission Color"].default_value = emit; b.inputs["Emission Strength"].default_value = emit_strength
-    if alpha < 1.0:
-        b.inputs["Alpha"].default_value = alpha
-        setp(m, "surface_render_method", "BLENDED"); setp(m, "blend_method", "BLEND"); setp(m, "use_backface_culling", False)
-    return m
 def cube(name, loc, dims, mat):
     bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
     o = bpy.context.active_object; o.name = name; o.scale = dims
-    bpy.ops.object.transform_apply(scale=True); o.data.materials.append(mat); return o
+    bpy.ops.object.transform_apply(scale=True); o.data.materials.append(mat); box_uv(o); return o
 def import_glb(path):
     before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=path)
     new = [o for o in bpy.data.objects if o not in before]; bpy.context.view_layer.update(); return new
@@ -101,117 +96,86 @@ def smooth_keys(o):
     for fc in fcs:
         for kp in fc.keyframe_points:
             kp.interpolation = "BEZIER"; kp.handle_left_type = kp.handle_right_type = "AUTO_CLAMPED"
+def set_material(objs, pred, mat):
+    for o in objs:
+        if o.type != "MESH": continue
+        for i, m in enumerate(o.data.materials):
+            if m and pred(m.name): o.data.materials[i] = mat
 
-# ------------------------------------------------------------------ procedural materials
-def _math(nt, op, a, b=None, val=None):
-    n = nt.nodes.new("ShaderNodeMath"); n.operation = op
-    if hasattr(a, "is_output"): nt.links.new(a, n.inputs[0])
-    else: n.inputs[0].default_value = a
-    if b is not None:
-        if hasattr(b, "is_output"): nt.links.new(b, n.inputs[1])
-        else: n.inputs[1].default_value = b
-    return n.outputs[0]
-
-def concrete_material(name, base=(0.62, 0.60, 0.56), scale=0.9, bump=0.10, rough=0.85, variation=0.14):
-    """World-space noise mottling plus fine grain bump. `scale` is noise cells per metre."""
-    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree; b = nt.nodes["Principled BSDF"]
-    geo = nt.nodes.new("ShaderNodeNewGeometry")
-    n1 = nt.nodes.new("ShaderNodeTexNoise"); n1.inputs["Scale"].default_value = scale; n1.inputs["Detail"].default_value = 9; n1.inputs["Roughness"].default_value = 0.62
-    nt.links.new(geo.outputs["Position"], n1.inputs["Vector"])
-    ramp = nt.nodes.new("ShaderNodeValToRGB"); ramp.color_ramp.elements[0].position = 0.32; ramp.color_ramp.elements[1].position = 0.72
-    ramp.color_ramp.elements[0].color = (base[0] * (1 - variation), base[1] * (1 - variation), base[2] * (1 - variation), 1)
-    ramp.color_ramp.elements[1].color = (min(1, base[0] * (1 + variation)), min(1, base[1] * (1 + variation)), min(1, base[2] * (1 + variation)), 1)
-    nt.links.new(n1.outputs["Fac"], ramp.inputs[0]); nt.links.new(ramp.outputs[0], b.inputs["Base Color"])
-    n2 = nt.nodes.new("ShaderNodeTexNoise"); n2.inputs["Scale"].default_value = scale * 40; n2.inputs["Detail"].default_value = 5
-    nt.links.new(geo.outputs["Position"], n2.inputs["Vector"])
-    bmp = nt.nodes.new("ShaderNodeBump"); bmp.inputs["Strength"].default_value = bump; bmp.inputs["Distance"].default_value = 0.01
-    nt.links.new(n2.outputs["Fac"], bmp.inputs["Height"]); nt.links.new(bmp.outputs["Normal"], b.inputs["Normal"])
-    b.inputs["Roughness"].default_value = rough
-    return m
-
-def metal_material(name, base=(0.10, 0.10, 0.11), rough=0.35):
-    return new_mat(name, (base[0], base[1], base[2], 1), rough=rough, metal=0.9)
-
-def window_glass_material(name, base=(0.10, 0.16, 0.20)):
-    """Opaque reflective office glass: reads as glass through the sky and sun it mirrors."""
-    return new_mat(name, (base[0], base[1], base[2], 1), rough=0.09, metal=0.85)
-
-def curtain_wall_material(name, win_w=3.0, floor_h=3.6, lit_fraction=0.06):
-    """Concrete grid of floors and mullions with reflective glass panes, some lit warm. World-space,
-    so any box wearing it becomes an office building. Per-object random shifts the tint and the lights."""
-    m = bpy.data.materials.new(name); m.use_nodes = True; nt = m.node_tree
-    for n in list(nt.nodes): nt.nodes.remove(n)
-    out = nt.nodes.new("ShaderNodeOutputMaterial")
-    geo = nt.nodes.new("ShaderNodeNewGeometry"); oi = nt.nodes.new("ShaderNodeObjectInfo")
-    sp = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(geo.outputs["Position"], sp.inputs[0])
-    sn = nt.nodes.new("ShaderNodeSeparateXYZ"); nt.links.new(geo.outputs["Normal"], sn.inputs[0])
-    absx = _math(nt, "ABSOLUTE", sn.outputs[0]); is_x = _math(nt, "GREATER_THAN", absx, 0.5)
-    is_top = _math(nt, "GREATER_THAN", sn.outputs[2], 0.5)
-    # u runs along the facade whichever way it faces
-    mixu = nt.nodes.new("ShaderNodeMix"); mixu.data_type = "FLOAT"
-    nt.links.new(is_x, mixu.inputs[0]); nt.links.new(sp.outputs[0], mixu.inputs[2]); nt.links.new(sp.outputs[1], mixu.inputs[3])
-    u = mixu.outputs[0]
-    fu = _math(nt, "FRACT", _math(nt, "DIVIDE", u, win_w)); fv = _math(nt, "FRACT", _math(nt, "DIVIDE", sp.outputs[2], floor_h))
-    in_u = _math(nt, "MULTIPLY", _math(nt, "GREATER_THAN", fu, 0.10), _math(nt, "LESS_THAN", fu, 0.90))
-    in_v = _math(nt, "MULTIPLY", _math(nt, "GREATER_THAN", fv, 0.20), _math(nt, "LESS_THAN", fv, 0.86))
-    is_win = _math(nt, "MULTIPLY", _math(nt, "MULTIPLY", in_u, in_v), _math(nt, "SUBTRACT", 1.0, is_top))
-    # lit windows: white noise on the window's grid cell, salted by the object's random value
-    cu = _math(nt, "FLOOR", _math(nt, "DIVIDE", u, win_w)); cz = _math(nt, "FLOOR", _math(nt, "DIVIDE", sp.outputs[2], floor_h))
-    comb = nt.nodes.new("ShaderNodeCombineXYZ"); nt.links.new(cu, comb.inputs[0]); nt.links.new(cz, comb.inputs[1])
-    salt = _math(nt, "MULTIPLY", oi.outputs["Random"], 97.0); nt.links.new(salt, comb.inputs[2])
-    wn = nt.nodes.new("ShaderNodeTexWhiteNoise"); wn.noise_dimensions = "3D"; nt.links.new(comb.outputs[0], wn.inputs["Vector"])
-    lit = _math(nt, "MULTIPLY", _math(nt, "GREATER_THAN", wn.outputs["Value"], 1.0 - lit_fraction), is_win)
-    # the two surfaces
-    glass = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    glass.inputs["Base Color"].default_value = (0.09, 0.15, 0.19, 1); glass.inputs["Metallic"].default_value = 0.7; glass.inputs["Roughness"].default_value = 0.14
-    glass.inputs["Emission Color"].default_value = (1.0, 0.82, 0.55, 1)
-    nt.links.new(_math(nt, "MULTIPLY", lit, 1.3), glass.inputs["Emission Strength"])
-    conc = nt.nodes.new("ShaderNodeBsdfPrincipled"); conc.inputs["Roughness"].default_value = 0.85
-    tint = nt.nodes.new("ShaderNodeMix"); tint.data_type = "RGBA"
-    tint.inputs[6].default_value = (0.52, 0.50, 0.47, 1); tint.inputs[7].default_value = (0.70, 0.69, 0.66, 1)
-    nt.links.new(oi.outputs["Random"], tint.inputs[0]); nt.links.new(tint.outputs[2], conc.inputs["Base Color"])
-    grain = nt.nodes.new("ShaderNodeTexNoise"); grain.inputs["Scale"].default_value = 30; grain.inputs["Detail"].default_value = 4
-    nt.links.new(geo.outputs["Position"], grain.inputs["Vector"])
-    bmp = nt.nodes.new("ShaderNodeBump"); bmp.inputs["Strength"].default_value = 0.08; bmp.inputs["Distance"].default_value = 0.01
-    nt.links.new(grain.outputs["Fac"], bmp.inputs["Height"]); nt.links.new(bmp.outputs["Normal"], conc.inputs["Normal"])
-    mix = nt.nodes.new("ShaderNodeMixShader"); nt.links.new(is_win, mix.inputs[0]); nt.links.new(conc.outputs[0], mix.inputs[1]); nt.links.new(glass.outputs[0], mix.inputs[2])
-    nt.links.new(mix.outputs[0], out.inputs["Surface"])
-    return m
-
-# ------------------------------------------------------------------ world, sun, ground, streets
-SUN_DIR = Vector((math.cos(math.radians(12)) * math.cos(math.radians(-24)),
-                  math.cos(math.radians(12)) * math.sin(math.radians(-24)),
-                  math.sin(math.radians(12)))).normalized()
+# ------------------------------------------------------------------ sky, sun, mist
+SUN_AZ, SUN_EL = -24.0, 12.0
+SUN_DIR = Vector((math.cos(math.radians(SUN_EL)) * math.cos(math.radians(SUN_AZ)),
+                  math.cos(math.radians(SUN_EL)) * math.sin(math.radians(SUN_AZ)),
+                  math.sin(math.radians(SUN_EL)))).normalized()
 w = bpy.data.worlds.new("World"); sc.world = w; w.use_nodes = True
 nt = w.node_tree; bg = nt.nodes["Background"]
-sky = nt.nodes.new("ShaderNodeTexSky")
-try: sky.sky_type = "HOSEK_WILKIE"; sky.sun_direction = SUN_DIR; sky.turbidity = 4.5; sky.ground_albedo = 0.25
-except Exception: sky.sky_type = "PREETHAM"; sky.sun_direction = SUN_DIR; sky.turbidity = 4.5
-nt.links.new(sky.outputs[0], bg.inputs[0]); bg.inputs[1].default_value = 2.0
+HDRI = os.environ.get("HDRI") or os.path.join(TEXDIR, "hdri", "kloppenheim_06_puresky_2k.hdr")
+SKY = "procedural"
+if os.path.exists(HDRI):
+    import numpy as np
+    env = nt.nodes.new("ShaderNodeTexEnvironment"); env.image = bpy.data.images.load(HDRI)
+    # find the sky's own sun so the lamp, the highlight in the glass and the sky agree
+    iw, ih = env.image.size
+    px = np.array(env.image.pixels[:], dtype=np.float32).reshape(ih, iw, 4)
+    lum = px[:, :, 0] * 0.2126 + px[:, :, 1] * 0.7152 + px[:, :, 2] * 0.0722
+    jj, ii = np.unravel_index(np.argmax(lum), lum.shape)
+    hdri_az = -((ii + 0.5) / iw - 0.5) * 360.0
+    tc = nt.nodes.new("ShaderNodeTexCoord"); mp = nt.nodes.new("ShaderNodeMapping")
+    mp.inputs["Rotation"].default_value = (0, 0, math.radians(-(SUN_AZ - hdri_az)))
+    nt.links.new(tc.outputs["Generated"], mp.inputs[0]); nt.links.new(mp.outputs[0], env.inputs[0])
+    # the lamp is the only hard sun: the sky's disc is clamped to a warm glow the glass can mirror
+    vm = nt.nodes.new("ShaderNodeVectorMath"); vm.operation = "MINIMUM"; vm.inputs[1].default_value = (float(os.environ.get("SKY_CLAMP", "6")),) * 3
+    nt.links.new(env.outputs[0], vm.inputs[0]); nt.links.new(vm.outputs[0], bg.inputs[0])
+    bg.inputs[1].default_value = float(os.environ.get("SKY_STRENGTH", "0.7"))
+    band_lo, band_hi = int(ih * 0.50), int(ih * 0.56)
+    HAZE_COL = [float(px[band_lo:band_hi, :, k].mean()) * bg.inputs[1].default_value * 0.75 for k in range(3)]
+    SKY = "%s az=%.1f" % (os.path.basename(HDRI), hdri_az)
+else:
+    sky = nt.nodes.new("ShaderNodeTexSky")
+    try: sky.sky_type = "HOSEK_WILKIE"; sky.sun_direction = SUN_DIR; sky.turbidity = 4.5; sky.ground_albedo = 0.25
+    except Exception: sky.sky_type = "PREETHAM"; sky.sun_direction = SUN_DIR; sky.turbidity = 4.5
+    nt.links.new(sky.outputs[0], bg.inputs[0]); bg.inputs[1].default_value = 2.0
+    HAZE_COL = [0.78, 0.62, 0.50]
+setp(w, "sun_threshold", 0.0)
+w.mist_settings.start = float(os.environ.get("MIST_START", "80")); w.mist_settings.depth = float(os.environ.get("MIST_DEPTH", "700")); setp(w.mist_settings, "falloff", "QUADRATIC")
+setp(sc.view_layers[0], "use_pass_mist", True); setp(sc.view_layers[0], "use_pass_z", True)
 sun = link(bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN")))
-sun.data.energy = 6.5; sun.data.color = (1.0, 0.78, 0.55); sun.data.angle = math.radians(1.2)
+sun.data.energy = float(os.environ.get("SUN_ENERGY", "12.0")); sun.data.color = (1.0, 0.78, 0.55); sun.data.angle = math.radians(1.2)
 sun.rotation_euler = (-SUN_DIR).to_track_quat("-Z", "Y").to_euler()
 
-pavement = concrete_material("Pavement", base=(0.46, 0.45, 0.42), scale=0.4, bump=0.04, rough=0.95, variation=0.10)
-asphalt = concrete_material("Asphalt", base=(0.09, 0.09, 0.095), scale=0.6, bump=0.05, rough=0.9, variation=0.25)
+# ------------------------------------------------------------------ ground, streets, lots
+ground_mat = pbr_material("Ground", "asphalt_02", tile=14.0, bump=0.1, tint=(0.55, 0.55, 0.56), rough_add=0.08)
+pavement = pbr_material("Pavement", "concrete_pavement_02", tile=3.0, bump=0.35, bump_dist=0.02, tint=(0.92, 0.91, 0.88), rough_add=0.05)
 bpy.ops.mesh.primitive_plane_add(size=1600, location=(0, 0, -0.02))
-ground = bpy.context.active_object; ground.name = "Ground"; ground.data.materials.append(pavement)
+ground = bpy.context.active_object; ground.name = "Ground"; ground.data.materials.append(ground_mat); box_uv(ground)
 
 BLOCK, STREET = 46.0, 14.0
 GRID_I, GRID_J = range(-5, 8), range(-5, 6)
-def street(name, loc, dims):
+road_x = road_material("RoadAlongY", along="y", width=STREET)
+road_y = road_material("RoadAlongX", along="x", width=STREET)
+avenue_mat = road_material("Avenue", along="x", width=STREET + 14, lanes=4)
+def street(name, loc, dims, mat):
     bpy.ops.mesh.primitive_plane_add(size=1, location=loc)
     o = bpy.context.active_object; o.name = name; o.scale = (dims[0], dims[1], 1)
-    bpy.ops.object.transform_apply(scale=True); o.data.materials.append(asphalt); return o
+    bpy.ops.object.transform_apply(scale=True); o.data.materials.append(mat); box_uv(o); return o
 for i in range(min(GRID_I) - 1, max(GRID_I) + 1):
-    street(f"StreetX{i}", ((i + 0.5) * BLOCK, 0, 0.005), (STREET, 1600))
+    street(f"StreetX{i}", ((i + 0.5) * BLOCK, 0, 0.005), (STREET, 1600), road_x)
 for j in range(min(GRID_J) - 1, max(GRID_J) + 1):
-    street(f"StreetY{j}", (0, (j + 0.5) * BLOCK, 0.005), (1600, STREET))
-street("Avenue", (BLOCK * 4.0, 0, 0.012), (BLOCK * 8, STREET + 14))
+    street(f"StreetY{j}", (0, (j + 0.5) * BLOCK, 0.005), (1600, STREET), road_y)
+street("Avenue", (BLOCK * 4.0, 0, 0.012), (BLOCK * 8, STREET + 14), avenue_mat)
+# raised paved lots, so the streets read as streets from the air
+KERB = 0.14
+for i in range(min(GRID_I) - 1, max(GRID_I) + 2):
+    for j in range(min(GRID_J) - 1, max(GRID_J) + 2):
+        if (i, j) == (0, 0) or (j == 0 and i >= 1): continue
+        cube(f"Lot_{i}_{j}", (i * BLOCK, j * BLOCK, KERB / 2), (BLOCK - STREET, BLOCK - STREET, KERB), pavement)
 
 # ------------------------------------------------------------------ the hero tower (generated, so its windows are its own)
 office = curtain_wall_material("OfficeCurtainWall")
-roof_mat = concrete_material("Roof", base=(0.40, 0.40, 0.39), scale=0.5, bump=0.05, rough=0.95, variation=0.1)
+FACADES = [office,
+           curtain_wall_material("FacadeSmooth", win_w=2.4, floor_h=3.3, lit_fraction=0.08, concrete_key="white_plaster_02"),
+           curtain_wall_material("FacadeStone", win_w=3.4, floor_h=3.8, lit_fraction=0.04, concrete_key="precast_concrete_wall")]
+roof_mat = pbr_material("Roof", "white_plaster_02", tile=4.0, bump=0.2, tint=(0.62, 0.62, 0.61), rough_add=0.1)
 WIN_PITCH, FLOOR_PITCH = 3.0, 3.6                      # the grid curtain_wall_material draws, in metres
 TOWER_D, TOWER_W, FLOORS = 24.0, 30.0, 13
 TOWER_H = FLOORS * FLOOR_PITCH
@@ -221,6 +185,7 @@ tower = cube("HeroTower", (0, 0, TOWER_H / 2), (TOWER_D, TOWER_W, TOWER_H), offi
 shell = tower.modifiers.new("shell", "SOLIDIFY"); shell.thickness = SHELL; shell.offset = -1
 bpy.context.view_layer.objects.active = tower; bpy.ops.object.modifier_apply(modifier="shell")
 cube("Podium", (0, 0, FLOOR_PITCH), (TOWER_D + 10, TOWER_W + 10, FLOOR_PITCH * 2), office)
+cube("Plaza", (0, 0, KERB / 2), (TOWER_W + 14, TOWER_W + 14, KERB), pavement)
 cube("RoofSlab", (0, 0, TOWER_H + 0.25), (TOWER_D + 0.4, TOWER_W + 0.4, 0.5), roof_mat)
 cube("RoofBox", (-3, 3, TOWER_H + 2.0), (8, 10, 3.2), roof_mat)
 # the two window cells the camera uses: floor FLOOR_N, cells k=-1 and k=0 on the +x face, exactly where the material draws glass
@@ -244,6 +209,7 @@ for (ya, yb) in CELLS:
     except Exception:
         m.solver = "FAST"; bpy.ops.object.modifier_apply(modifier="cut")
     bpy.data.objects.remove(cutter)
+box_uv(tower)   # the boolean and the shell made new faces
 
 # the company mark near the top of the front face
 MARK = os.environ.get("MARK_PNG")
@@ -258,14 +224,12 @@ if MARK and os.path.exists(MARK):
     sign = bpy.context.active_object; sign.name = "Sign"; sign.data.materials.append(sm)
 
 # ------------------------------------------------------------------ the office behind the windows
-wall = concrete_material("OfficeWall", base=(0.60, 0.60, 0.59), scale=0.5, bump=0.02, rough=0.8, variation=0.05)
-carpet = concrete_material("Carpet", base=(0.28, 0.29, 0.31), scale=2.0, bump=0.25, rough=1.0, variation=0.12)
-carpet.node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.2
-ceilm = new_mat("Ceiling", (0.90, 0.90, 0.88, 1), rough=0.95)
-panel_light = new_mat("PanelLight", (1, 1, 1, 1), rough=0.5, emit=(1.0, 0.97, 0.90, 1), emit_strength=3.5)
-part_glass = new_mat("PartitionGlass", (0.85, 0.92, 0.92, 1), rough=0.04, alpha=0.14)
-part_glass.node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.5
-metal_frame = metal_material("FrameMetal", base=(0.08, 0.08, 0.085), rough=0.4)
+wall = pbr_material("OfficeWall", "plastered_wall_02", tile=3.0, bump=0.15, bump_dist=0.01, tint=(0.97, 0.96, 0.93), rough_add=0.05, ao=0.4, interp="Cubic")
+carpet = carpet_material("Carpet")
+ceilm = ceiling_material("Ceiling")
+panel_light = plain_material("PanelLight", (1, 1, 1, 1), rough=0.5, emit=(1.0, 0.97, 0.90, 1), emit_strength=3.5)
+part_glass = plain_material("PartitionGlass", (0.85, 0.92, 0.92, 1), rough=0.04, alpha=0.14)
+metal_frame = plain_material("FrameMetal", (0.08, 0.08, 0.085, 1), rough=0.4, metal=0.9)
 RX1 = FX - SHELL; RX0 = RX1 - ROOM_D
 RY0, RY1 = WY - ROOM_W / 2, WY + ROOM_W / 2
 TH = 0.30
@@ -280,6 +244,10 @@ cube("PartRail", ((RX0 + RX1) / 2, PY, CEIL_Z - 0.03), (ROOM_D + 0.6, 0.08, 0.06
 cube("PartBase", ((RX0 + RX1) / 2, PY, FLOOR_Z + 0.03), (ROOM_D + 0.6, 0.08, 0.06), metal_frame)
 cube("PartGlass", ((RX0 + RX1) / 2, PY, (FLOOR_Z + CEIL_Z) / 2), (ROOM_D + 0.6, 0.012, ROOM_H - 0.12), part_glass)
 cube("CorridorWall", ((RX0 + RX1) / 2, PY + 2.0 + TH / 2, (FLOOR_Z + CEIL_Z) / 2), (ROOM_D + 0.6, TH, ROOM_H), wall)
+# skirting along the walls, the kind of small thing a real room has
+skirt = plain_material("Skirting", (0.16, 0.15, 0.14, 1), rough=0.5)
+cube("SkirtBack", (RX0 + 0.02, WY + 1.0, FLOOR_Z + 0.05), (0.04, ROOM_W + 2.6, 0.10), skirt)
+cube("SkirtSide", ((RX0 + RX1) / 2, RY0 + 0.02, FLOOR_Z + 0.05), (ROOM_D + 0.6, 0.04, 0.10), skirt)
 # the inside face of the window wall: sill, head, the piers between and beside the two cells
 wx = RX1 - TH / 2
 cube("WinWallBelow", (wx, WY + 1.0, (FLOOR_Z + SILL) / 2), (TH, ROOM_W + 2.6, SILL - FLOOR_Z), wall)
@@ -287,10 +255,12 @@ cube("WinWallAbove", (wx, WY + 1.0, (WIN_TOP + CEIL_Z) / 2), (TH, ROOM_W + 2.6, 
 cube("WinWallL", (wx, (RY0 - 0.3 + CELLS[0][0]) / 2, (FLOOR_Z + CEIL_Z) / 2), (TH, CELLS[0][0] - (RY0 - 0.3), ROOM_H), wall)
 cube("WinWallPier", (wx, (CELLS[0][1] + CELLS[1][0]) / 2, (FLOOR_Z + CEIL_Z) / 2), (TH, CELLS[1][0] - CELLS[0][1], ROOM_H), wall)
 cube("WinWallR", (wx, (CELLS[1][1] + RY1 + 2.3) / 2, (FLOOR_Z + CEIL_Z) / 2), (TH, (RY1 + 2.3) - CELLS[1][1], ROOM_H), wall)
+sill_mat = plain_material("SillStone", (0.82, 0.80, 0.76, 1), rough=0.35, spec=0.6)
+cube("SillBoard", (RX1 - 0.16, WY, SILL - 0.015), (0.36, CELLS[1][1] - CELLS[0][0] + 0.5, 0.03), sill_mat)
 for k, (px, py) in enumerate([(RX0 + 1.6, WY + 0.2), (RX0 + 4.4, WY + 0.2), (RX0 + 3.0, WY - 3.2), (RX0 + 3.0, WY + 3.4)]):
     cube(f"Panel{k}", (px, py, CEIL_Z - 0.02), (1.2, 0.6, 0.04), panel_light)
     L = link(bpy.data.objects.new(f"PanelLight{k}", bpy.data.lights.new(f"PanelLight{k}", "AREA")))
-    L.location = (px, py, CEIL_Z - 0.06); L.data.energy = 22; L.data.size = 1.2; L.data.size_y = 0.6; L.data.color = (1.0, 0.96, 0.9)
+    L.location = (px, py, CEIL_Z - 0.06); L.data.energy = float(os.environ.get("PANEL_W", "14")); L.data.size = 1.2; L.data.size_y = 0.6; L.data.color = (1.0, 0.96, 0.9)
 
 # slim metal frames around each cell, sitting in the reveal like the rest of the facade would
 FT = 0.07
@@ -302,10 +272,9 @@ for (ya, yb) in CELLS:
     cube("CellFrameR", (FX - 0.12, yb - FT / 2, (SILL + WIN_TOP) / 2), (0.24, FT, WIN_H), metal_frame)
 
 # the glass in those two cells is the facade's own reflective glass, broken into shards that stay put until the shatter
-shard_glass = new_mat("ShardGlass", (0.62, 0.78, 0.78, 1), rough=0.05, alpha=0.35)
-shard_glass.node_tree.nodes["Principled BSDF"].inputs["Specular IOR Level"].default_value = 0.6
+shard_glass = plain_material("ShardGlass", (0.10, 0.16, 0.20, 1), rough=0.06, metal=0.5, alpha=0.55, spec=0.8)
 # dithered transparency: no per-shard sorting, several times cheaper than blended with this many overlapping panes
-setp(shard_glass, "surface_render_method", "DITHERED"); setp(shard_glass, "blend_method", "HASHED")
+setp(shard_glass, "surface_render_method", "BLENDED"); setp(shard_glass, "blend_method", "BLEND"); setp(shard_glass, "use_backface_culling", False)
 setp(part_glass, "surface_render_method", "DITHERED"); setp(part_glass, "blend_method", "HASHED")
 T_SHATTER = 10.0
 for (ya, yb) in CELLS:
@@ -324,7 +293,6 @@ for (ya, yb) in CELLS:
             c = sum(quad, Vector()) / 4
             me = bpy.data.meshes.new("Shard"); me.from_pydata([v - c for v in quad], [], [[0, 1, 2, 3]]); me.update()
             o = link(bpy.data.objects.new("Shard", me)); o.location = c; o.data.materials.append(shard_glass)
-            o.visible_shadow = False        # seventy moving shadow casters cost more than the whole city; glass shards need none
             sol = o.modifiers.new("thick", "SOLIDIFY"); sol.thickness = 0.008; sol.offset = 0
             o.visible_shadow = False   # seventy moving shadow casters doubled the frame time
             f0 = f(T_SHATTER) + random.randint(0, 3)
@@ -350,14 +318,18 @@ samples = []
 for (ta, pa), (tb, pb) in zip(OUTDOOR, OUTDOOR[1:]):
     n = max(2, int((tb - ta) / 0.15))
     samples += [pa.lerp(pb, k / n) for k in range(n + 1)]
+sun_samples = [WC + SUN_DIR * d for d in range(0, 700, 3)]
 def clear_of_camera(cx, cy, wdt, dep, hgt, margin=8.0):
     for s in samples:
         if abs(s.x - cx) < wdt / 2 + margin and abs(s.y - cy) < dep / 2 + margin and s.z < hgt + 6.0:
             return False
+    for s in sun_samples:
+        if abs(s.x - cx) < wdt / 2 + 5.0 and abs(s.y - cy) < dep / 2 + 5.0 and s.z < hgt + 3.0:
+            return False
     return True
 placed = 0
 def office_block(name, cx, cy, wdt, dep, hgt):
-    o = cube(name, (cx, cy, hgt / 2), (wdt, dep, hgt), office)
+    o = cube(name, (cx, cy, hgt / 2), (wdt, dep, hgt), random.choice(FACADES))
     # roof plant box on anything tall
     if hgt > 30:
         cube(name + "_roof", (cx + random.uniform(-wdt * 0.2, wdt * 0.2), cy + random.uniform(-dep * 0.2, dep * 0.2), hgt + 1.5), (wdt * 0.3, dep * 0.3, 3.0), roof_mat)
@@ -396,6 +368,30 @@ for o in [o for o in desk if "chair" in o.name.lower() and o.type == "MESH"]:
     c = obj_center("chair")
     o.matrix_world = Matrix.Translation(c + Vector((0.35, 1.15, 0))) @ Matrix.Rotation(math.radians(40), 4, "Z") @ Matrix.Translation(-c) @ o.matrix_world
 bpy.context.view_layer.update()
+# real surfaces on the low-poly set: wood on the desk, leather on the chair, honest plastics and metals elsewhere
+for o in desk:
+    if o.type == "MESH": box_uv(o, space="object")
+desk_wood = pbr_material("DeskWood", "dark_wood", tile=1.6, bump=0.12, bump_dist=0.005, tint=(0.80, 0.74, 0.68), rough_mul=0.55, rough_add=0.12, spec=0.6, interp="Cubic")
+desk_wood2 = pbr_material("DeskWoodTop", "wood_table_001", tile=1.4, bump=0.12, bump_dist=0.005, tint=(1.05, 1.0, 0.95), rough_mul=0.5, rough_add=0.14, spec=0.6, interp="Cubic")
+leather = pbr_material("ChairLeather", "brown_leather", tile=0.9, bump=0.25, bump_dist=0.004, tint=(0.62, 0.55, 0.50), rough_add=0.05, spec=0.45, interp="Cubic")
+leather_dark = pbr_material("ChairLeatherDark", "brown_leather", tile=0.9, bump=0.25, bump_dist=0.004, tint=(0.16, 0.14, 0.13), rough_add=0.05, spec=0.4, interp="Cubic")
+set_material(desk, lambda n: n.startswith("DarkWood"), desk_wood)
+set_material(desk, lambda n: n.startswith("Wood."), desk_wood2)
+set_material(desk, lambda n: n == "Executive.003", leather)
+set_material(desk, lambda n: n == "Executive__2.003", leather_dark)
+for o in desk:
+    if o.type != "MESH": continue
+    for m in o.data.materials:
+        if not m or not m.use_nodes or "Principled BSDF" not in m.node_tree.nodes or m.name in ("DeskWood", "DeskWoodTop", "ChairLeather", "ChairLeatherDark"): continue
+        b = m.node_tree.nodes["Principled BSDF"]; n = m.name.lower()
+        if "metal" in n or n.startswith("executive__3") or n.startswith("black."):
+            b.inputs["Metallic"].default_value = 0.9; b.inputs["Roughness"].default_value = 0.32
+        elif n.startswith("screen") and "phone" in o.name.lower():
+            b.inputs["Metallic"].default_value = 0.0; b.inputs["Base Color"].default_value = (0.02, 0.03, 0.03, 1); b.inputs["Roughness"].default_value = 0.15
+            b.inputs["Emission Color"].default_value = (0.35, 0.75, 0.55, 1); b.inputs["Emission Strength"].default_value = 0.6
+        else:
+            b.inputs["Metallic"].default_value = 0.0
+            if b.inputs["Roughness"].default_value >= 0.97: b.inputs["Roughness"].default_value = 0.55
 
 screen_obj = [o for o in desk if "screen" in o.name.lower() and o.type == "MESH"][0]
 me = screen_obj.data
@@ -435,22 +431,28 @@ pl = link(bpy.data.objects.new("DeskLamp", bpy.data.lights.new("DeskLamp", "POIN
 pl.location = lamp_pos + Vector((0.05, 0, -0.03)); pl.data.energy = 60; pl.data.color = (1.0, 0.72, 0.45); pl.data.shadow_soft_size = 0.12
 
 KF = os.path.join(ASSETS, "kenney_furniture-kit", "Models", "GLTF format")
-def kenney(name, loc, rot_z=0.0, scale=1.55, recolor=None):
+shelf_wood = pbr_material("ShelfWood", "wood_table_001", tile=0.8, bump=0.1, bump_dist=0.004, tint=(0.55, 0.50, 0.46), rough_mul=0.6, rough_add=0.15, spec=0.5, interp="Cubic")
+def kenney(name, loc, rot_z=0.0, scale=1.55, material=None):
     objs = import_glb(os.path.join(KF, name + ".glb"))
     r = group(objs, "K_" + name); place_group(r, objs, loc, rot_z=rot_z, scale=scale)
-    if recolor:
-        m = new_mat("K_" + name + "_mat", recolor, rough=0.85)
-        for o in objs:
-            if o.type == "MESH": o.data.materials.clear(); o.data.materials.append(m)
+    for o in objs:
+        if o.type != "MESH": continue
+        box_uv(o, space="object")
+        if material:
+            o.data.materials.clear(); o.data.materials.append(material)
+        for m in o.data.materials:
+            if m and m.use_nodes and "Principled BSDF" in m.node_tree.nodes and m is not material:
+                b = m.node_tree.nodes["Principled BSDF"]; b.inputs["Metallic"].default_value = 0.0
+                b.inputs["Roughness"].default_value = 0.62; b.inputs["Specular IOR Level"].default_value = 0.35
     return objs
-shelf = kenney("bookcaseClosedWide", (RX0 + 0.45, WY - 3.3, FLOOR_Z), rot_z=math.radians(-90), scale=1.6, recolor=(0.22, 0.22, 0.23, 1))
+shelf = kenney("bookcaseClosedWide", (RX0 + 0.45, WY - 3.3, FLOOR_Z), rot_z=math.radians(-90), scale=1.6, material=shelf_wood)
 slo, shi = world_bbox(shelf)
 kenney("plantSmall2", (RX0 + 0.45, WY - 3.0, shi.z), scale=1.7)
 kenney("pottedPlant", (RX0 + 0.6, WY + 2.6, FLOOR_Z), scale=1.8)
 kenney("pottedPlant", (RX1 - 0.9, WY - 3.9, FLOOR_Z), scale=1.5)
 kenney("plantSmall1", (RX0 + 1.3, WY + 1.25, FLOOR_Z + 0.76), scale=1.3)
 
-mote_mat = new_mat("Mote", (1.0, 0.95, 0.85, 1), rough=0.6, emit=(1.0, 0.9, 0.7, 1), emit_strength=1.6)
+mote_mat = plain_material("Mote", (1.0, 0.95, 0.85, 1), rough=0.6, emit=(1.0, 0.9, 0.7, 1), emit_strength=1.6)
 bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=1, radius=1.0, location=(0, 0, -50))
 mote_src = bpy.context.active_object; mote_src.name = "MoteSrc"; mote_src.data.materials.append(mote_mat); mote_src.hide_render = True
 for i in range(170):
@@ -458,7 +460,7 @@ for i in range(170):
     for _ in range(12):
         p = Vector((random.uniform(RX0 + 0.3, RX1 - 0.3), random.uniform(RY0 + 0.3, RY1 - 0.3), random.uniform(FLOOR_Z + 0.2, CEIL_Z - 0.3)))
         if (p - MC).length > 0.8: break
-    m = link(bpy.data.objects.new(f"Mote{i}", mote_src.data)); m.scale = (random.uniform(0.004, 0.009),) * 3; m.visible_shadow = False; m.visible_shadow = False
+    m = link(bpy.data.objects.new(f"Mote{i}", mote_src.data)); m.scale = (random.uniform(0.004, 0.009),) * 3; m.visible_shadow = False
     m.location = p; key(m, "location", 1)
     for fr in (200, 400, 600):
         p = p + Vector((random.uniform(-0.2, 0.2), random.uniform(-0.2, 0.2), random.uniform(-0.15, 0.1)))
@@ -494,7 +496,7 @@ for t, loc, tg, fs in path:
     cam.data.dof.aperture_fstop = fs; cam.data.dof.keyframe_insert("aperture_fstop", frame=f(t))
 smooth_keys(cam); smooth_keys(tgt)
 
-# ------------------------------------------------------------------ compositor: flare + glow
+# ------------------------------------------------------------------ compositor: aerial haze, flare, glow
 COMP = "none"
 try:
     if hasattr(sc, "compositing_node_group"):
@@ -508,6 +510,21 @@ try:
         for n in list(tree.nodes): tree.nodes.remove(n)
         outn = tree.nodes.new("CompositorNodeComposite")
     rl = tree.nodes.new("CompositorNodeRLayers"); rl.scene = sc
+    img = rl.outputs["Image"]
+    # distance haze from the mist pass: the far city dissolves into the sky the way real air does
+    if "Mist" in rl.outputs:
+        try:
+            amt = tree.nodes.new("ShaderNodeMath"); amt.operation = "MULTIPLY"; amt.inputs[1].default_value = float(os.environ.get("HAZE", "0.32"))
+            tree.links.new(rl.outputs["Mist"], amt.inputs[0])
+            geo = tree.nodes.new("ShaderNodeMath"); geo.operation = "LESS_THAN"; geo.inputs[1].default_value = 1.0e5   # the sky's depth is effectively infinite
+            tree.links.new(rl.outputs["Depth"] if "Depth" in rl.outputs else rl.outputs["Z"], geo.inputs[0])
+            amt2 = tree.nodes.new("ShaderNodeMath"); amt2.operation = "MULTIPLY"; tree.links.new(amt.outputs[0], amt2.inputs[0]); tree.links.new(geo.outputs[0], amt2.inputs[1])
+            amt = amt2
+            hz = tree.nodes.new("ShaderNodeMix"); hz.data_type = "RGBA"; hz.inputs[7].default_value = (HAZE_COL[0], HAZE_COL[1], HAZE_COL[2], 1)
+            tree.links.new(amt.outputs[0], hz.inputs[0]); tree.links.new(img, hz.inputs[6]); img = hz.outputs[2]
+            COMP = "haze "
+        except Exception as e:
+            COMP = "nohaze(%s) " % str(e)[:60]
     def glare(kind, **kw):
         g = tree.nodes.new("CompositorNodeGlare"); setp(g, "glare_type", kind)
         for k, v in kw.items():
@@ -519,23 +536,30 @@ try:
         return g
     g1 = glare("STREAKS", **{"Threshold": 2.6, "Strength": 0.22, "Streaks": 4, "Streaks Angle": math.radians(20), "Size": 7, "threshold": 2.6, "mix": -0.4, "streaks": 4, "angle_offset": math.radians(20), "iterations": 4})
     g2 = glare("FOG_GLOW", **{"Threshold": 1.8, "Strength": 0.10, "Size": 7, "threshold": 1.8, "mix": -0.7, "size": 7})
-    tree.links.new(rl.outputs["Image"], g1.inputs["Image"]); tree.links.new(g1.outputs["Image"], g2.inputs["Image"]); tree.links.new(g2.outputs["Image"], outn.inputs[0])
-    COMP = "ok"
+    tree.links.new(img, g1.inputs["Image"]); tree.links.new(g1.outputs["Image"], g2.inputs["Image"]); tree.links.new(g2.outputs["Image"], outn.inputs[0])
+    COMP += "ok"
 except Exception as e:
     COMP = "failed: " + str(e)[:120]
 
 # ------------------------------------------------------------------ output
 info = {"tower_h": round(TOWER_H, 1), "window_center": [round(v, 2) for v in WC],
         "pane": [round(v, 2) for v in PANE], "floor_z": round(FLOOR_Z, 2), "room": [round(RX0, 2), round(RX1, 2), round(RY0, 2), round(RY1, 2)],
-        "monitor": [round(v, 2) for v in MC], "buildings": placed, "compositor": COMP}
+        "monitor": [round(v, 2) for v in MC], "buildings": placed, "compositor": COMP, "sky": SKY, "textures": TEXDIR}
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "hero-city.blend"))
 sc.render.image_settings.file_format = "PNG"; sc.render.image_settings.color_mode = "RGB"
 if MODE == "stills":
-    sc.render.resolution_percentage = 50
+    sc.render.resolution_percentage = int(os.environ.get("PCT", "50"))
     times = [0.0, 4.2, 8.3, 9.6, 10.4, 11.2, 12.6, 14.5, 15.6, 17.0, 18.8, 21.6, 25.0]
     if os.environ.get("STILLS"): times = [float(x) for x in os.environ["STILLS"].split(",")]
+    import time as _time
     for t in times:
-        sc.frame_set(f(t)); sc.render.filepath = os.path.join(OUT, "still_%05.2f.png" % t); bpy.ops.render.render(write_still=True)
+        t0 = _time.time(); sc.frame_set(f(t)); sc.render.filepath = os.path.join(OUT, "still_%05.2f.png" % t); bpy.ops.render.render(write_still=True)
+        print("STILL t=%.2f took %.1fs" % (t, _time.time() - t0))
+elif MODE == "sunprobe":
+    # a very wide frame straight at the lamp's sun: the sky's bright spot should sit dead centre
+    sc.render.resolution_percentage = 25; cam.animation_data_clear(); tgt.animation_data_clear()
+    cam.location = (0, 0, 140); tgt.location = Vector((0, 0, 140)) + SUN_DIR * 100; cam.data.lens = 12; cam.data.dof.use_dof = False
+    sc.render.filepath = os.path.join(OUT, "sunprobe.png"); bpy.ops.render.render(write_still=True)
 elif MODE == "anim":
     fd = os.path.join(OUT, "frames"); os.makedirs(fd, exist_ok=True)
     a, b = (int(x) for x in RANGE.split("-")) if RANGE else (1, NF)

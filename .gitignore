@@ -18,3 +18,7 @@ dist/
 .claude/memory.db
 .claude/settings.local.json
 .claude/checkpoints/
+
+# Poly Haven texture sets for the hero render (CC0, fetched by scripts/hero/fetch_textures.py)
+scripts/hero/textures/
+scripts/hero/__pycache__/

@@ -30,8 +30,10 @@ src/
   seo/                    routes + titles (pages.js), JSON-LD (schema.js), head tags
   pages/                  one component per route
   components/
-    layout/               Header, Footer, sticky MobileBar, scroll + head managers
-    hero/                 the scrub hero and the static hero
+    layout/               Header, Footer, sticky MobileBar, scroll + head managers,
+                          and the Preloader (the once-per-session loading curtain)
+    hero/                 the scrub hero, the static hero, and heroCache.js (the one
+                          shared download of the footage)
     home/                 the home-page sections and the hold-to-ship interaction
     forms/                the Apply form and its submit logic
     proof/                project cards for the Proof page
@@ -42,8 +44,10 @@ scripts/
   prerender.mjs           writes dist/<route>/index.html, 404.html, sitemap, robots
   check-content.mjs       the section 5 content rules, as a script
   hero/                   the Blender flythrough behind the hero video: build_hero.py
-                          builds and renders the scene, logo-screen.html is the
-                          monitor texture, encode.sh turns frames into the mp4 + stills
+                          builds and renders the scene, materials.py is its material
+                          library, fetch_textures.py pulls the CC0 Poly Haven texture
+                          sets and sky it needs, logo-screen.html is the monitor
+                          texture, encode.sh turns frames into the mp4 + stills
 public/
   assets/                 fonts (licences beside them), hero media
   brand/                  the vector mark and favicon set
