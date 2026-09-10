@@ -107,21 +107,11 @@ export default function Footer() {
             {formatRupees(site.pricing.total)} total, including GST. {formatRupees(site.pricing.seat)} books a seat.
             Payment collection is not enabled on this site.
           </p>
-          {/* The heading face is CC BY-SA 4.0 and its .woff2 is served from this
-              site, which is redistribution, so the credit is a licence condition
-              rather than a courtesy. Kept to one line: the required mention, a
-              link to the licence, and the statement that nothing was changed. */}
-          <p>
-            Headings:{' '}
-            <a href="https://yukipixels.itch.io/boldpixels" rel="noopener">
-              BoldPixels by YukiPixels
-            </a>
-            ,{' '}
-            <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener">
-              CC BY-SA 4.0
-            </a>
-            , unmodified.
-          </p>
+          {/* The visible BoldPixels credit was removed at the owner's request.
+              CC BY-SA 4.0 still requires it while this site serves the .woff2,
+              so it now lives as a comment in index.html beside the font preload,
+              next to the licence file at /assets/fonts/boldpixels-LICENSE.txt.
+              Changing the heading face to an OFL one would end the obligation. */}
         </div>
       </div>
     </footer>

@@ -4,9 +4,11 @@
    SIL OFL 1.1, licence beside the file. */
 @font-face{font-family:'Buildanta Numbers';font-style:normal;font-display:swap;font-weight:100 900;
   src:url('/assets/fonts/archivo-latin-var.woff2') format('woff2');unicode-range:U+0030-0039}
-/* The heading face. BoldPixels by Yuki (@YukiPixels), CC BY-SA 4.0, used
-   without modification. The licence asks for credit and a link, both of which
-   are in the footer. One weight only, so synthesis stays off wherever it is used. */
+/* The heading face. BoldPixels by YukiPixels, CC BY-SA 4.0, used without
+   modification. The licence asks for credit and a link; the owner removed the
+   visible footer credit, so both now sit in a comment at the top of index.html
+   beside the preload, with the licence text served next to the font itself.
+   One weight only, so synthesis stays off wherever it is used. */
 @font-face{font-family:'BoldPixels';font-style:normal;font-display:swap;font-weight:800;
   src:url('/assets/fonts/boldpixels.woff2') format('woff2')}
 @font-face{font-family:'Pixelify';font-style:normal;font-display:swap;font-weight:400 700;
