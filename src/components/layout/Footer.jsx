@@ -107,17 +107,20 @@ export default function Footer() {
             {formatRupees(site.pricing.total)} total, including GST. {formatRupees(site.pricing.seat)} books a seat.
             Payment collection is not enabled on this site.
           </p>
-          <p>Hero artwork is generated. The room is a drawing, not a photograph of the institute.</p>
+          {/* The heading face is CC BY-SA 4.0 and its .woff2 is served from this
+              site, which is redistribution, so the credit is a licence condition
+              rather than a courtesy. Kept to one line: the required mention, a
+              link to the licence, and the statement that nothing was changed. */}
           <p>
-            Headings set in{' '}
+            Headings:{' '}
             <a href="https://yukipixels.itch.io/boldpixels" rel="noopener">
-              BoldPixels by Yūki (@YukiPixels)
+              BoldPixels by YukiPixels
             </a>
             ,{' '}
             <a href="https://creativecommons.org/licenses/by-sa/4.0/" rel="noopener">
               CC BY-SA 4.0
             </a>
-            . Font used without modification.
+            , unmodified.
           </p>
         </div>
       </div>
