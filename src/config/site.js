@@ -30,7 +30,7 @@ export const site = {
   phone: null,
 
   /** Digits only, international format, no plus, e.g. '919876543210'. Used for wa.me links. */
-  whatsapp: null,
+  whatsapp: '919876543210',
 
   /** A real inbox a human reads. */
   email: null,
