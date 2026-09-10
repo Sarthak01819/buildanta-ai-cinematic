@@ -39,7 +39,7 @@ export default function Why() {
           <div className="plate rise">
             <img
               src="/assets/hero-threshold.jpg"
-              alt="The moment the camera passes through the institute's window, glass scattering into a sunlit hall."
+              alt="The moment the camera passes through an office tower's window, glass scattering into the room."
               width="1536"
               height="864"
               loading="lazy"

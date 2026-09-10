@@ -29,7 +29,7 @@ export default function Closer() {
       <div className="plate rise">
         <img
           src="/assets/hero-ending.jpg"
-          alt="A rendered workstation: a wooden desk against a stone wall, a lamp, a plant, and a monitor showing the BUILDANTA logo."
+          alt="A rendered office at dusk: a wooden desk, a lamp, a plant, and a monitor showing the BUILDANTA logo."
           width="1536"
           height="864"
           loading="lazy"
