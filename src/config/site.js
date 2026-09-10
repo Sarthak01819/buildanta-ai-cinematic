@@ -17,8 +17,13 @@ export const site = {
   state: 'Uttar Pradesh',
   country: 'IN',
 
-  /** Canonical origin, no trailing slash. Swap for the custom domain when it is live. */
-  url: 'https://buildanta-ai-institute-three.vercel.app',
+  /**
+   * Canonical origin, no trailing slash. Every canonical tag, og:url, the
+   * sitemap and robots.txt derive from this, so it must name the domain this
+   * build actually answers on. Swap it for the custom domain the day that goes
+   * live, or search engines will keep crediting this address.
+   */
+  url: 'https://buildanta-ai-cinematic.vercel.app',
 
   /** Street address and PIN. Both null until the owner supplies them. */
   address: {
