@@ -1,12 +1,28 @@
 /** What is taught. Matches the tools strip wording fixed in section 4.1 of the spec. */
 export const tools = [
-  { name: 'Claude Code', text: 'Building real software by directing an AI coding agent, not by typing every line.' },
-  { name: 'AI agents', text: 'Systems that carry out multi-step work on their own.' },
-  { name: 'AI video generation', text: 'Producing video with generative tools, start to finish.' },
-  { name: 'AI development', text: 'Putting these together into something that actually ships.' },
+  {
+    name: 'Claude Code',
+    text:
+      'Building real software by directing an AI coding agent, not by typing every line. For example: adding a working payment page to a site that already exists, or turning a bug report into a tested fix.',
+  },
+  {
+    name: 'AI agents',
+    text:
+      'Systems that carry out multi-step work on their own. For example: an agent that reads incoming enquiries, answers the ordinary ones and passes the rest to a person.',
+  },
+  {
+    name: 'AI video generation',
+    text:
+      'Producing video with generative tools, start to finish. For example: a thirty-second advertisement for a shop, or a voiced walkthrough of the project you built.',
+  },
+  {
+    name: 'AI Web/App development',
+    text:
+      'Putting these together into something that actually ships. For example: a booking site for a clinic in the city, or a phone app with a real sign-in and a database behind it.',
+  },
 ]
 
-export const TOOLS_STRIP = 'Claude Code · AI agents · AI video generation · AI development'
+export const TOOLS_STRIP = 'Claude Code · AI agents · AI video generation · AI Web/App development'
 
 /** The twenty-eight days. */
 export const phases = [

@@ -44,7 +44,7 @@ export function course() {
     '@type': 'Course',
     name: site.programme,
     description:
-      'A 28-day programme in Kanpur covering Claude Code, AI agents, AI video generation and AI development. Two weeks in the room, two weeks of remote follow-through. Each student ships one project in public.',
+      'A 28-day programme in Kanpur covering Claude Code, AI agents, AI video generation and AI Web/App development. Two weeks in the room, two weeks of remote follow-through. Each student ships one project in public.',
     provider: { '@type': 'EducationalOrganization', name: site.name, url: site.url },
     url: `${site.url}/`,
     offers: {

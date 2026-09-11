@@ -25,7 +25,7 @@ export default function ForParents() {
           <div className="prose rise">
             <p>
               <strong>What this is.</strong> An offline institute in {site.city} teaching four current AI tools — Claude
-              Code, AI agents, AI video generation and AI development. Twenty-eight days: two weeks in the room, two
+              Code, AI agents, AI video generation and AI Web/App development. Twenty-eight days: two weeks in the room, two
               weeks of remote follow-through.
             </p>
             <p>
