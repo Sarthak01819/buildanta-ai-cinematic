@@ -1,5 +1,5 @@
 /* ---------------------------------------------------------------- hero -- */
-.hero{position:relative;height:1060vh}
+.hero{position:relative;height:945vh}
 .stage{position:sticky;top:0;height:100vh;overflow:hidden;background:#0C1109}
 .stage-media{position:absolute;inset:0}
 .poster,.stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}

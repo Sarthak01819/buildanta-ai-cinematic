@@ -4,7 +4,7 @@ import { useLocation } from 'react-router'
 /**
  * Declarative routing does not restore scroll for us, so: new page starts at
  * the top with focus on <main>; a hash scrolls to its target. Same-page hash
- * links glide, cross-page ones jump, because gliding through a 1060vh hero
+ * links glide, cross-page ones jump, because gliding through a 945vh hero
  * from another page would take a while.
  */
 export default function ScrollManager() {
