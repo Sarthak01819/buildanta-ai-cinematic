@@ -40,6 +40,84 @@
 .in.done .rise:nth-child(1),.in.done .rise:nth-child(2),.in.done .rise:nth-child(3),
 .in.done .rise:nth-child(4),.in.done .rise:nth-child(5),.in.done .rise:nth-child(6){transition-delay:0s}
 
+/* ------------------------------------------------------------- the gap -- */
+/* The facts take the left half and the glyph study the right, but only once
+   there is room for two readable columns. Below that the facts have the width
+   to themselves and the study does not load at all (see GapStudy.jsx). */
+.gap-split{position:relative;display:grid;gap:2.5rem}
+.gap-study{display:none}
+/* The split exists only where the study does, so a device that will not get the
+   artwork gets the full width for its figures instead of an empty right half.
+   The pointer conditions match GapStudy.jsx exactly; see the note there for why
+   a touch device must not be given this thing. */
+@media (min-width:1000px) and (hover:hover) and (pointer:fine){
+  .gap-split{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:clamp(2.5rem,4vw,4rem);align-items:start}
+  /* The study takes the right half of the window rather than the right half of
+     the container, so it comes out of the grid flow. The grid still declares two
+     columns, which is what keeps the figures in the left half.
+
+     `right: calc(50% - 50vw)` reaches the window's edge from inside a centred
+     container: half the container's width minus half the window's is exactly the
+     margin beside it. No fixed numbers, so it holds at every width.
+
+     Pinned to the top of this row, not centred on the section, because centred
+     put the artwork behind the heading, and the heading's dark text over these
+     green letters measures 2.7:1. Below the heading there is nothing to read
+     through it. No transform is used to place it: one would open a stacking
+     context and strand the blend mode that puts it on the page. */
+  .gap-study{display:block;position:absolute;top:0;right:calc(50% - 50vw);
+    width:50vw;height:min(50vw,86vh)}
+  /* Half the width means half the columns: the four figures pair up rather
+     than shrinking to a line each. This outranks the four-across rule in
+     site.css on specificity, so it holds at every width above this one. */
+  .gap-facts .stats.four{grid-template-columns:repeat(2,1fr);gap:2.25rem}
+}
+
+/* The frame around the study, and the compositing that puts it on this page.
+   The study paints pale glyphs on near-black and offers no control over either
+   colour, so the recolour happens here, in three steps that run in order:
+     invert      near-black ground becomes near-white, pale glyphs become dark
+     sepia       greys pick up a hue, which they have to before anything can
+                 steer them; this is the step that makes the rest possible
+     sat/rotate  that hue is pushed to the site's green
+     multiply    white is multiply's no-op, so the ground disappears into the
+                 page and only the glyphs darken it
+   The upshot is green letters drifting over the page's own grid, with no panel
+   behind them. */
+/* Fills whatever box it is given: a square half-window on a wide screen, its
+   grid cell anywhere else. The study magnifies itself inside this (the scale
+   prop), so what gets cropped here is the empty plate around the cloud, not
+   the cloud. */
+.shader-frame{position:relative;width:100%;height:100%;aspect-ratio:1;
+  background:transparent;overflow:hidden}
+
+/* Pass one: drop the panel. Inverting turns the study's near-black ground into
+   near-white and its pale glyphs dark; contrast drives that ground the rest of
+   the way to pure white, which is the one colour multiply leaves alone. So the
+   ground disappears into the page and only the letters darken it. Greyscale
+   first, so no colour cast survives into pass two. */
+.shader-frame .text-path-study{
+  background:transparent !important;
+  filter:invert(1) grayscale(1) contrast(1.55) brightness(1.04);
+  mix-blend-mode:multiply}
+
+/* Pass two: colour the letters. Lighten keeps whichever is lighter, and the
+   site's green is darker than the page but lighter than the letters, so the
+   page comes through untouched and every dark letter lands on exactly the
+   green in the palette. Tinting in a filter could not do this: it would have
+   coloured the ground too, and a tinted ground is no longer transparent. */
+.shader-frame::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--accent);mix-blend-mode:lighten}
+
+/* A laptop with both a trackpad and a touchscreen passes the hover-and-fine
+   test above and still has a finger, so it could still have a swipe swallowed
+   by the study. Where any coarse pointer exists at all, the study stops taking
+   input entirely: the cost is the pointer repulsion on those machines, which is
+   decoration, and the gain is that the page always scrolls, which is not. */
+@media (any-pointer:coarse){
+  .gap-study{pointer-events:none}
+}
+
 /* The gap figures. */
 .stats{display:grid;gap:2.5rem}
 .figure{font:500 clamp(2.6rem,1.6rem + 4vw,4.6rem)/1 var(--font-mono);letter-spacing:-.03em;
@@ -81,9 +159,13 @@
 .owns{display:grid;gap:1rem}
 @media (min-width:700px){.owns{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:1000px){.owns{grid-template-columns:repeat(3,1fr)}}
-.own{padding:1.7rem 1.5rem;opacity:.78;
-  transition:opacity 600ms var(--ease),border-color 600ms var(--ease),box-shadow 600ms var(--ease)}
-.own.lit{opacity:1}
+/* Waiting, then lit. Fading the whole card was the obvious way to say "not yet"
+   and the wrong one: group opacity takes the card's own text down with it, and
+   at any fade deep enough to read as dimmed the words fell under 4.5:1. So the
+   card dims by sitting on a flatter, darker green instead, and its text stays
+   at full strength the whole time. panels.css lights it back up. */
+.own{padding:1.7rem 1.5rem;
+  transition:background-color 600ms var(--ease),border-color 600ms var(--ease),box-shadow 600ms var(--ease)}
 .own .n{font:500 .75rem/1 var(--font-mono);color:var(--accent);letter-spacing:.1em}
 .own h3{margin-top:.8rem;font-size:1.25rem}
 .own p{margin-top:.55rem;color:var(--text-secondary);font-size:.94rem}

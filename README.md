@@ -103,3 +103,10 @@ Headings are set in BoldPixels by Yūki (@YukiPixels), CC BY-SA 4.0, used
 without modification. Archivo, Pixelify Sans and JetBrains Mono are under the
 SIL Open Font License; the licences sit beside the font files. Hero artwork is
 generated: the room is a drawing, not a photograph of the institute.
+
+The glyph cloud beside the gap figures is `TextPathStudies`
+(`morphing-glyph-cloud`) from [ThreeUI](https://threeui.com) by Meng To, MIT,
+used unmodified from the published package; its copyright notice ships in the
+built chunk. The page recolours it from the outside with a blend mode rather
+than by editing it. It loads only on wide screens, and never under reduced
+motion, so it costs nothing on a phone.

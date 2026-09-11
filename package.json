@@ -11,6 +11,7 @@
     "check": "node scripts/check-content.mjs"
   },
   "dependencies": {
+    "@designcodeio/threeui": "^1.2.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "react-router": "^7.9.0"

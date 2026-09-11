@@ -65,9 +65,12 @@
    as a smudge. The day count above each heading carries the accent instead. */
 .phase{border-top-width:1px}
 
-/* The six things stay dimmed until the hold fills, then brighten rather than
-   changing colour, so the reveal reads as a light coming on. */
-.own.lit{border-color:var(--surface-accent);box-shadow:0 20px 42px -20px rgba(18,42,26,.62)}
+/* The six things wait on a flatter, darker green and light up when the hold
+   fills: the card gains the gradient, the mint edge and the lift all at once,
+   which reads as a light coming on without ever dimming the words. */
+.own{background:#22412C;background-image:none}
+.own.lit{background-image:var(--surface);background-color:var(--surface-flat);
+  border-color:var(--surface-accent);box-shadow:0 20px 42px -20px rgba(18,42,26,.62)}
 
 /* The price block kept a left accent bar; on green it becomes the mint. */
 .price{border-left:4px solid var(--surface-accent)}

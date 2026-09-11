@@ -12,6 +12,9 @@
 @media (max-height:560px){.hud,.loader{display:none}}
 
 @media (prefers-reduced-motion: reduce){
+  /* The glyph study runs inside an iframe, out of reach of the rule below, so
+     it is hidden here and GapStudy.jsx declines to load it in the first place. */
+  .gap-study{display:none !important}
   *,*::before,*::after{animation:none !important;transition:none !important;
     animation-delay:0s !important;transition-delay:0s !important}
   .rise{opacity:1;transform:none}

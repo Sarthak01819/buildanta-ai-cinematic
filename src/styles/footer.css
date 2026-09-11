@@ -7,6 +7,12 @@
 .footer nav a{color:var(--text-secondary);text-decoration:none;font-size:.92rem;padding-block:.2rem}
 .footer nav a:hover{color:var(--text-primary);text-decoration:underline}
 .footer .body{margin-top:.8rem;font-size:.92rem}
+/* The page's accent green lands at 4.26:1 on the footer's lighter ground, just
+   under the 4.5 that body-sized text needs. The hover green clears it at 5.8:1
+   and is already part of the palette, so the contact links take that instead.
+   Scoped to the contact block: the nav and the social marks set their own. */
+.footer-contact a{color:var(--accent-hover)}
+.footer-contact a:hover{color:var(--text-primary)}
 /* The two social marks. Each sits in a 44px target, pulled back by the padding
    around the glyph so the first icon still lines up with the text above it. */
 .footer-social{display:flex;align-items:center;margin-left:-11px}
