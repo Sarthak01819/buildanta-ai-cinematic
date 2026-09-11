@@ -7,6 +7,16 @@
 .footer nav a{color:var(--text-secondary);text-decoration:none;font-size:.92rem;padding-block:.2rem}
 .footer nav a:hover{color:var(--text-primary);text-decoration:underline}
 .footer .body{margin-top:.8rem;font-size:.92rem}
+/* The two social marks. Each sits in a 44px target, pulled back by the padding
+   around the glyph so the first icon still lines up with the text above it. */
+.footer-social{display:flex;align-items:center;margin-left:-11px}
+.footer-social a{display:inline-flex;align-items:center;justify-content:center;
+  width:44px;height:44px;margin-block:-.6rem;color:var(--text-secondary);
+  transition:color var(--dur) var(--ease)}
+.footer-social a:hover{color:var(--accent)}
+/* Until a URL exists the Pending text stands in, and it needs its own alignment. */
+.footer-social .pending{margin-left:11px}
+
 .footer-base{margin-top:2.5rem;padding-top:1.5rem;border-top:1px solid var(--rule);
   display:grid;gap:.5rem}
 .footer-base p{font:500 .78rem/1.6 var(--font-mono);color:var(--text-secondary)}

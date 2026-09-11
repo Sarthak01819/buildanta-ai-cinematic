@@ -2,6 +2,7 @@ import { Link } from 'react-router'
 import { site } from '../../config/site.js'
 import { cityLine, formatPhone, formatRupees, mailtoHref, telHref, whatsappHref, hasWhatsapp } from '../../lib/contact.js'
 import Pending from '../ui/Pending.jsx'
+import { FacebookIcon, InstagramIcon } from '../ui/SocialIcons.jsx'
 
 /** Footer per spec 3.2. The address is what makes an offline institute real to a parent. */
 export default function Footer() {
@@ -55,16 +56,15 @@ export default function Footer() {
             <p className="body footer-social">
               <Pending value={site.social.instagram} label="Instagram">
                 {(url) => (
-                  <a href={url} target="_blank" rel="noopener">
-                    Instagram
+                  <a href={url} target="_blank" rel="noopener" aria-label="BUILDANTA on Instagram">
+                    <InstagramIcon />
                   </a>
                 )}
               </Pending>
-              {' · '}
               <Pending value={site.social.facebook} label="Facebook">
                 {(url) => (
-                  <a href={url} target="_blank" rel="noopener">
-                    Facebook
+                  <a href={url} target="_blank" rel="noopener" aria-label="BUILDANTA on Facebook">
+                    <FacebookIcon />
                   </a>
                 )}
               </Pending>
