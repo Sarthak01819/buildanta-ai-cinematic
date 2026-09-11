@@ -210,7 +210,20 @@
   transition:transform 320ms var(--ease)}
 .faq details[open] summary::after{transform:rotate(90deg);
   background:linear-gradient(var(--accent),var(--accent)) center/14px 3px no-repeat}
-.faq .answer{padding:0 3rem 1.5rem 0;color:var(--text-secondary);max-width:60ch}
+/* While a panel is animating shut the element is still open, so the icon would
+   sit as a minus until the very end. Keyed off the closing state instead, it
+   turns back into a plus as soon as the pointer goes down. */
+.faq details[data-state="closing"] summary::after{transform:none;
+  background:
+    linear-gradient(var(--accent),var(--accent)) center/14px 3px no-repeat,
+    linear-gradient(var(--accent),var(--accent)) center/3px 14px no-repeat}
+/* The panel's height is animated, so it clips while it is between sizes, and it
+   carries no padding of its own in that direction: a box cannot be shorter than
+   its own padding, so bottom padding here left the panel 24px tall when it was
+   supposed to be shut. The spacing moved inside, where it collapses with the
+   rest of the content. */
+.faq .answer{padding:0;overflow:hidden;color:var(--text-secondary);max-width:60ch}
+.faq .answer>p{padding:0 3rem 1.5rem 0}
 
 /* Apply. */
 .apply-grid{display:grid;gap:2.5rem}
