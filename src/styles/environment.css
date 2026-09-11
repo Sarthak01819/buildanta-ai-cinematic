@@ -1,7 +1,13 @@
 /* ---------------------------------------------- the environment layer -- */
 /* One fixed ground behind everything, drifting slowly, so the page reads as
    one place rather than stacked sections. */
-.env{position:fixed;inset:0;z-index:-2;pointer-events:none;background:var(--canvas)}
+/* Graph paper, the ground the panels sit on. Two hairline gradients rather
+   than an image, so it costs nothing and scales with the viewport. */
+.env{position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:
+    linear-gradient(var(--grid-line) 1px,transparent 1px) 0 0/34px 34px,
+    linear-gradient(90deg,var(--grid-line) 1px,transparent 1px) 0 0/34px 34px,
+    var(--canvas)}
 .env::before{content:"";position:absolute;inset:-20%;
   background:radial-gradient(ellipse 50% 40% at 30% 25%,rgba(143,177,106,.24),transparent 60%),
              radial-gradient(ellipse 55% 45% at 75% 70%,rgba(220,231,200,.60),transparent 62%);

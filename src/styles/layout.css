@@ -5,7 +5,7 @@
   transition:background 420ms var(--ease-soft),border-color 420ms var(--ease-soft)}
 /* The bar rides dark footage at the top and beige page below it, so it changes
    with the ground under it rather than fighting one of the two. */
-.nav.solid{background:rgba(240,233,216,.94);border-bottom:1px solid var(--rule)}
+.nav.solid{background:rgba(232,240,226,.94);border-bottom:1px solid var(--rule)}
 .nav .wordmark{color:var(--over-text)}
 .nav .wordmark span{color:rgba(246,241,228,.74)}
 .nav.solid .wordmark{color:var(--text-primary)}
@@ -19,15 +19,15 @@
 
 /* ----------------------------------------------------------------- btn -- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
-  min-height:48px;padding:.85rem 1.4rem;border:2px solid transparent;
+  min-height:48px;padding:.85rem 1.5rem;border:2px solid transparent;border-radius:var(--radius-pill);
   font:600 1rem/1.2 var(--font-body);letter-spacing:.01em;text-decoration:none;cursor:pointer;
   transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease),
-             color var(--dur) var(--ease),transform 180ms var(--ease)}
+             color var(--dur) var(--ease),transform 180ms var(--ease),box-shadow 180ms var(--ease)}
 .btn-primary{background:var(--accent);color:var(--accent-ink);
-  box-shadow:4px 4px 0 rgba(30,43,31,.26);text-shadow:none}
-.btn-primary:hover{background:var(--accent-hover);color:var(--accent-ink);transform:translate(-1px,-1px);
-  box-shadow:5px 5px 0 rgba(30,43,31,.32)}
-.btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(30,43,31,.26)}
+  box-shadow:0 10px 22px -12px rgba(20,45,28,.72);text-shadow:none}
+.btn-primary:hover{background:var(--accent-hover);color:var(--accent-ink);transform:translateY(-2px);
+  box-shadow:0 16px 28px -14px rgba(20,45,28,.8)}
+.btn-primary:active{transform:translateY(1px);box-shadow:0 6px 14px -10px rgba(20,45,28,.7)}
 .btn-ghost{background:transparent;color:var(--text-primary);border-color:var(--rule-2);text-shadow:none}
 .btn-ghost:hover{color:var(--text-primary);border-color:var(--accent);background:var(--accent-muted)}
 .nav .btn{min-height:42px;padding:.6rem 1rem;font-size:.95rem;white-space:nowrap}

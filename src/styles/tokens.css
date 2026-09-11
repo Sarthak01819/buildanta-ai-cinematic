@@ -28,7 +28,7 @@
      secondary 5.9:1, the green CTA 5.1:1 against its own label. Light green
      cannot carry small text on beige, it lands at 2:1, so here it is a surface
      and an edge and never a label colour. */
-  --canvas:#F0E9D8;
+  --canvas:#E8F0E2;
   --canvas-2:#DCE7C8;
   --panel:#FBF7EC;
   --accent:#4A7431;
@@ -46,6 +46,27 @@
      that were already audited at 4.6:1 and better. These two serve that layer
      only, and nothing below the fold uses them. */
   --over-text:#F6F1E4;
+
+  /* The panel theme. Short content rides deep green cards over a pale gridded
+     ground; long reading copy stays on the ground, where dark-on-light is
+     easier on the eye. Measured against the lightest stop of the card, which is
+     the worst case, not against its average: cream 5.8:1, its muted pair 5.5:1,
+     the mint 4.8:1, and dark ink on that mint 8:1. The page accent green is
+     within a shade of the card, so on green it is never used. */
+  --surface:linear-gradient(155deg,#355C40 0%,#25482E 58%,#1D3B25 100%);
+  --surface-flat:#254830;
+  --surface-ink:#EDF3E3;
+  --surface-ink-2:rgba(237,243,227,.86);
+  --surface-accent:#B9D89A;
+  --surface-edge:rgba(237,243,227,.16);
+  --surface-line:rgba(237,243,227,.15);
+  --shadow-card:0 18px 38px -22px rgba(18,42,26,.55);
+  --grid-line:rgba(74,116,49,.11);
+
+  /* One radius vocabulary: cards, the things inside them, and pills. */
+  --radius:22px;
+  --radius-sm:14px;
+  --radius-pill:999px;
 
   /* Same four jobs as the main site, in the same order, so the two properties
      read as one brand. Numbers first in every stack. */
@@ -78,7 +99,7 @@ h1,h2,h3{font-family:var(--font-heading);font-weight:800;line-height:1.1;
 a{color:var(--accent);text-underline-offset:.22em;text-decoration-thickness:2px}
 a:hover{color:var(--accent-hover)}
 :where(a,button,input,textarea,select,summary,[tabindex]):focus-visible{
-  outline:3px solid var(--accent);outline-offset:3px;border-radius:0}
+  outline:3px solid var(--accent);outline-offset:3px}
 ::selection{background:var(--accent);color:var(--accent-ink)}
 a,button,summary,input,select,textarea{touch-action:manipulation}
 

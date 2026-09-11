@@ -6,7 +6,7 @@
 /* ------------------------------------------ header links and the mark -- */
 .wordmark{align-items:center;gap:.7rem}
 .wordmark .mark{display:inline-grid;place-items:center;width:32px;height:32px;background:#193725;flex:none;
-  box-shadow:2px 2px 0 rgba(30,43,31,.22)}
+  border-radius:10px;box-shadow:0 6px 14px -8px rgba(20,45,28,.7)}
 .wordmark .mark img{width:26px;height:26px;display:block}
 .wordmark .wordmark-text{display:flex;align-items:baseline;gap:.55rem;color:inherit}
 /* layout.css colours every span in the wordmark; only the "AI Institute" tag should be muted. */
@@ -35,7 +35,7 @@
 @media (max-width:720px){
   .mobile-bar{position:fixed;left:0;right:0;bottom:0;z-index:70;display:grid;grid-template-columns:1fr 1fr;gap:.6rem;
     padding:.6rem var(--gutter) calc(.6rem + env(safe-area-inset-bottom,0px));
-    background:rgba(240,233,216,.96);border-top:1px solid var(--rule);backdrop-filter:blur(10px)}
+    background:rgba(232,240,226,.96);border-top:1px solid var(--rule);backdrop-filter:blur(10px)}
   .mobile-bar .btn{min-height:46px;padding:.6rem .5rem;font-size:.9rem;white-space:nowrap}
   body{padding-bottom:calc(70px + env(safe-area-inset-bottom,0px))}
 }
@@ -71,14 +71,12 @@
 
 /* Legal furniture. */
 .legal-meta{font:500 .75rem/1.6 var(--font-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--text-secondary)}
-.callout{margin-top:1.5rem;padding:1.1rem 1.25rem;background:var(--panel);border-left:4px solid var(--rule-2);
-  color:var(--text-secondary);font-size:.95rem}
+.callout{margin-top:1.5rem;padding:1.15rem 1.3rem;font-size:.95rem}
 .callout p{margin-top:.5rem}
 .callout p:first-child{margin-top:0}
 .callout strong{color:var(--text-primary)}
-.callout.warn{border-left-color:var(--accent);background:var(--canvas-2)}
-.decide{margin-top:1rem;padding:.9rem 1.1rem;border:2px dashed var(--rule-2);background:var(--panel);
-  font-size:.92rem;color:var(--text-secondary)}
+
+.decide{margin-top:1rem;padding:1rem 1.15rem;font-size:.92rem}
 .decide .label{display:block;font:500 .7rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;
   color:var(--accent);margin-bottom:.5rem}
 .decide ul{margin:.5rem 0 0;padding-left:1.2rem}
@@ -86,11 +84,10 @@
 .decide p{margin-top:.35rem}
 
 /* Contact card used on Apply and For Parents. */
-.contact-card{margin-top:2rem;padding:1.5rem 1.4rem;background:var(--canvas-2);border-top:4px solid var(--accent);
-  display:grid;gap:.5rem}
+.contact-card{margin-top:2rem;padding:1.6rem 1.5rem;display:grid;gap:.5rem}
 .contact-card h2,.contact-card h3{font-size:1.05rem;font-family:var(--font-display);font-weight:700;font-synthesis:none}
 .contact-card p{color:var(--text-secondary);font-size:.95rem}
-.contact-card a{color:var(--text-primary)}
+
 .contact-card address{font-style:normal;color:var(--text-secondary);font-size:.95rem}
 .contact-card .btn-row{margin-top:.75rem}
 
@@ -98,8 +95,8 @@
 .projects{display:grid;gap:1.25rem;margin-top:2rem}
 @media (min-width:700px){.projects{grid-template-columns:repeat(2,1fr)}}
 @media (min-width:1000px){.projects{grid-template-columns:repeat(3,1fr)}}
-.project{background:var(--panel);border-top:4px solid var(--moss);display:grid;grid-template-rows:auto 1fr}
-.project .shot{aspect-ratio:16/10;background:var(--canvas-2);overflow:hidden;display:grid;place-items:center}
+.project{display:grid;grid-template-rows:auto 1fr}
+.project .shot{aspect-ratio:16/10;overflow:hidden;display:grid;place-items:center}
 .project .shot img{width:100%;height:100%;object-fit:cover}
 .project .shot .label{font:500 .7rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;color:var(--text-secondary)}
 .project-body{padding:1.25rem 1.25rem 1.4rem;display:grid;gap:.6rem;align-content:start}
@@ -107,9 +104,8 @@
 .project-body h3{font-size:1.25rem}
 .project-body .line{color:var(--text-secondary);font-size:.94rem}
 .project-links{display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;margin-top:.4rem;font:500 .82rem/1.6 var(--font-mono)}
-.project-links a{color:var(--accent)}
-.project.slot{opacity:.72;border-top-color:var(--rule-2)}
-.project.slot .project-body h3{color:var(--text-secondary)}
+
+
 
 /* ---------------------------------------------------------- home tweaks -- */
 /* Four cleared statistics instead of three. */

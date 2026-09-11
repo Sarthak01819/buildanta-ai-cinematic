@@ -10,6 +10,7 @@
 /* Why: the plate and the closing buttons follow the prose at container width. */
 .page-body .plate+.btn-row{margin-top:2rem}
 
-/* Proof: reserved slots show the links as muted text, not dead anchors. */
-.project.slot .project-links span{color:var(--text-secondary)}
+/* Proof: reserved slots show the links as muted text, not dead anchors. The
+   card is green now, so muted means the card's own quiet ink, not the page's. */
+.project.slot .project-links span{color:var(--surface-ink-2)}
 .page-body .projects+.prose{margin-top:2.5rem}

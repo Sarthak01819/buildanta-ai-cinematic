@@ -1,0 +1,159 @@
+/* =========================================================================
+   The panel theme.
+
+   Short, self-contained content sits on deep green cards over the pale gridded
+   ground: the phases, the things you own, prices, contact and project cards,
+   callouts and asides. Long reading copy does not. Body paragraphs, the prose
+   pages and the FAQ answers stay dark-on-light, because a page of light text
+   on a dark card is harder to read than the same words the other way up, and
+   this site asks parents to read several screens of it.
+
+   The hero and the footer are deliberately untouched; they keep the look they
+   had. Everything here is skin only. Each component keeps its own padding and
+   grid where it was already defined.
+   ========================================================================= */
+
+/* ------------------------------------------------------------- the card -- */
+.phase,
+.own,
+.price,
+.aside-card,
+.contact-card,
+.project,
+.empty,
+.callout,
+.decide,
+.form-status,
+.hold{
+  background:var(--surface);
+  background-color:var(--surface-flat); /* the fallback anywhere gradients are dropped */
+  color:var(--surface-ink);
+  border:1px solid var(--surface-edge);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-card);
+}
+
+/* Headings keep the ink colour; everything quieter takes the muted pair. */
+.phase h3,.own h3,.aside-card h3,.contact-card h2,.contact-card h3,.project-body h3,
+.price .figure,.aside-card .figure{color:var(--surface-ink)}
+
+.phase p,.own p,.aside-card p,.contact-card p,.contact-card address,
+.project-body .line,.price .note,.callout,.decide,.slot,.form-status{color:var(--surface-ink-2)}
+
+.callout strong,.decide strong,.form-status strong,.contact-card strong{color:var(--surface-ink)}
+
+/* The small mono labels that were the page accent green. That green is nearly
+   the card's own colour, so on a card it becomes the mint instead. */
+.phase .days,.own .n,.project-body .n,.empty .label,.decide .label{color:var(--surface-accent)}
+
+/* Links on a card: the ink, underlined, with the mint on hover. */
+.contact-card a,.callout a,.decide a,.form-status a{color:var(--surface-ink)}
+.project-links a{color:var(--surface-accent)}
+.contact-card a:hover,.callout a:hover,.decide a:hover,.project-links a:hover{color:var(--surface-accent)}
+
+/* A placeholder on a card has to read as a placeholder without going invisible. */
+.phase .pending,.own .pending,.aside-card .pending,.contact-card .pending,
+.callout .pending,.decide .pending,.project .pending,.price .pending{
+  color:var(--surface-ink-2);border-bottom-color:var(--surface-line)}
+
+/* Rules drawn inside a card. */
+.price-line{border-bottom-color:var(--surface-line)}
+.price-line span:last-child{color:var(--surface-ink)}
+
+/* --------------------------------------------------- per-card departures -- */
+/* The phases lost their coloured top edge: at this size on this green it read
+   as a smudge. The day count above each heading carries the accent instead. */
+.phase{border-top-width:1px}
+
+/* The six things stay dimmed until the hold fills, then brighten rather than
+   changing colour, so the reveal reads as a light coming on. */
+.own.lit{border-color:var(--surface-accent);box-shadow:0 20px 42px -20px rgba(18,42,26,.62)}
+
+/* The price block kept a left accent bar; on green it becomes the mint. */
+.price{border-left:4px solid var(--surface-accent)}
+
+/* The deliberately empty Proof state keeps its dashed edge, redrawn on green. */
+.empty{border:2px dashed var(--surface-line)}
+
+/* A slot is a panel within a panel, so it lifts rather than repeats the card. */
+.slot{background:rgba(237,243,227,.07);border:1px solid var(--surface-line);
+  border-left:3px solid var(--surface-accent);border-radius:var(--radius-sm)}
+
+/* The callout and the decide box are quieter than a full card: flatter, and
+   the warn variant is the one that gets the mint edge. */
+.callout,.decide{box-shadow:none;background:rgba(37,72,48,.92)}
+.callout{border-left:4px solid var(--surface-line)}
+.callout.warn{border-left-color:var(--surface-accent);background:var(--surface)}
+.decide{border:2px dashed var(--surface-line)}
+
+/* The form's reply, which appears under the button after a submit. */
+.form-status{border-left:3px solid var(--surface-accent);box-shadow:none}
+
+/* The hold-to-ship button is a card you press, so it keeps the surface and
+   gains the pill the other buttons now wear. */
+.hold{border-radius:var(--radius-pill);color:var(--surface-ink);border:2px solid var(--surface-edge)}
+.hold:hover{border-color:var(--surface-accent)}
+.hold[data-done="true"]{border-color:var(--surface-accent)}
+.hold::before{background:rgba(168,204,133,.22)}
+.hold .blocks i{background:rgba(237,243,227,.28)}
+.hold .blocks i.lit{background:var(--surface-accent)}
+
+/* Project cards: the screenshot sits inside the rounded corner, not over it. */
+.project{overflow:hidden}
+.project .shot{background:rgba(237,243,227,.06);border-bottom:1px solid var(--surface-line)}
+.project .shot .label{color:var(--surface-ink-2)}
+/* The three reserved cards. Fading the whole card took its own text down with
+   it, so instead they sit on a flatter green behind a dashed edge: still
+   plainly waiting, still readable. */
+.project.slot{background:#31563C;border:1px dashed var(--surface-line);
+  border-radius:var(--radius);box-shadow:none;opacity:1}
+.project.slot .project-body h3,.project.slot .project-links{color:var(--surface-ink-2)}
+.project.slot .project-links a{color:var(--surface-ink-2)}
+
+/* --------------------------------------------------- things on the ground -- */
+/* The form stays light: dark text on a pale field is easier to type into and
+   to proof-read than the reverse, and it keeps the card behind it readable. */
+.field input,.field select,.field textarea{border-radius:var(--radius-sm)}
+.faq details:first-of-type,.faq details{border-radius:0}
+
+/* Images and image-shaped things follow the card's corner. */
+.project .shot img{border-radius:0}
+
+
+/* ----------------------------------------------------------- on the card -- */
+/* Buttons standing on a card have to swap roles. The ghost button is dark text
+   on the pale ground, which disappears here, and the primary green is within a
+   shade of the card itself. So ghost goes light, and primary becomes the mint
+   with dark ink: 7:1, and it reads as the brighter of the two, which is what a
+   primary action should do. */
+.aside-card .btn-ghost,.contact-card .btn-ghost,.phase .btn-ghost,.own .btn-ghost,
+.callout .btn-ghost,.decide .btn-ghost,.price .btn-ghost,.empty .btn-ghost{
+  color:var(--surface-ink);border-color:var(--surface-edge);background:transparent}
+.aside-card .btn-ghost:hover,.contact-card .btn-ghost:hover,.phase .btn-ghost:hover,
+.own .btn-ghost:hover,.callout .btn-ghost:hover,.decide .btn-ghost:hover,
+.price .btn-ghost:hover,.empty .btn-ghost:hover{
+  color:var(--surface-ink);border-color:var(--surface-accent);background:rgba(168,204,133,.16)}
+
+.aside-card .btn-primary,.contact-card .btn-primary,.price .btn-primary,
+.empty .btn-primary,.callout .btn-primary{
+  background:var(--surface-accent);color:#1B3A24;box-shadow:0 10px 22px -12px rgba(10,25,15,.7)}
+.aside-card .btn-primary:hover,.contact-card .btn-primary:hover,.price .btn-primary:hover,
+.empty .btn-primary:hover,.callout .btn-primary:hover{background:#BFDCA0;color:#1B3A24}
+
+/* List bullets were the page accent, which is the card's own colour here. */
+.callout li::marker,.decide li::marker,.aside-card li::marker,.empty li::marker{
+  color:var(--surface-accent)}
+
+/* On the legal pages these boxes sit inside .prose, and `.prose p` and
+   `.prose ul` are exactly as specific as anything that could inherit down to
+   them. Equal specificity means the later sheet wins, which is this one, so
+   the card's own text colour has to be stated on each tag rather than left to
+   inheritance. */
+.callout p,.callout li,.callout ul,.callout ol,.callout em,
+.decide p,.decide li,.decide ul,.decide ol,.decide em,
+.empty p,.empty li,.empty ul,.empty ol,
+.aside-card p,.aside-card li,.contact-card p{color:var(--surface-ink-2)}
+.callout h2,.callout h3,.decide h2,.decide h3,.empty h2,.empty h3{color:var(--surface-ink)}
+
+/* The reserved project cards list their fields as spans, not links. */
+.project-links,.project-links span{color:var(--surface-ink-2)}
