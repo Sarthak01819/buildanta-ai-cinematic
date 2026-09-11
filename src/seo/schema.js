@@ -33,7 +33,7 @@ export function organization() {
   if (site.phone) org.telephone = site.phone
   if (site.email) org.email = site.email
   if (site.gstin) org.taxID = site.gstin
-  const sameAs = [site.social.instagram, site.social.youtube].filter(Boolean)
+  const sameAs = [site.social.instagram, site.social.facebook].filter(Boolean)
   if (sameAs.length) org.sameAs = sameAs
   return org
 }

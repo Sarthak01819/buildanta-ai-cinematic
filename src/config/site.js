@@ -45,8 +45,13 @@ export const site = {
   gstin: null,
 
   social: {
-    instagram: null, // full URL
-    youtube: null, // full URL
+    /**
+     * Full profile URLs, canonical ones. The Instagram link the owner sent carried a
+     * share token (?stkn=) and the Facebook link was a /share/ redirect; both are
+     * session-scoped, so the plain profile addresses are stored instead.
+     */
+    instagram: 'https://www.instagram.com/buildanta_ai.institute/',
+    facebook: 'https://www.facebook.com/p/Buildanta-ai-institute-61593872288526/',
   },
 
   /** Required by the IT Act rules. The Privacy Policy is incomplete without it. */
@@ -96,7 +101,7 @@ export function missingPlaceholders(config = site) {
   if (!config.email) missing.push('email')
   if (!config.gstin) missing.push('gstin')
   if (!config.social.instagram) missing.push('social.instagram')
-  if (!config.social.youtube) missing.push('social.youtube')
+  if (!config.social.facebook) missing.push('social.facebook')
   if (!config.grievanceOfficer.name) missing.push('grievanceOfficer.name')
   if (!config.grievanceOfficer.designation) missing.push('grievanceOfficer.designation')
   if (!config.grievanceOfficer.email) missing.push('grievanceOfficer.email')

@@ -61,10 +61,10 @@ export default function Footer() {
                 )}
               </Pending>
               {' · '}
-              <Pending value={site.social.youtube} label="YouTube">
+              <Pending value={site.social.facebook} label="Facebook">
                 {(url) => (
                   <a href={url} target="_blank" rel="noopener">
-                    YouTube
+                    Facebook
                   </a>
                 )}
               </Pending>
