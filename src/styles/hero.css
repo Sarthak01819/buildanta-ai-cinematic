@@ -25,8 +25,8 @@
 .band.is-live{pointer-events:auto}
 .band-inner{position:relative;max-width:min(100%,54rem);text-align:center}
 .band h2,.band .h{font-family:var(--font-heading);font-weight:800;font-synthesis:none;
-  font-size:clamp(1.9rem,1.1rem + 3.4vw,4rem);line-height:1.1;text-wrap:balance}
-.band .lede{margin-top:1.4rem;font-size:clamp(1rem,.95rem + .4vw,1.2rem);color:var(--over-text);
+  font-size:clamp(1.9rem,1.1rem + 3.9vw,4.5rem);line-height:1.1;text-wrap:balance}
+.band .lede{margin-top:1.4rem;font-size:clamp(1.05rem,.95rem + .7vw,1.4rem);color:var(--over-text);
   max-width:44ch;margin-inline:auto;line-height:1.6}
 .band .btn-row{margin-top:2rem;justify-content:center}
 .band .btn{text-shadow:none}
@@ -75,7 +75,7 @@
 .static-hero .sh-scrim{position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(9,16,12,.72),rgba(9,16,12,.45) 45%,rgba(9,16,12,.88))}
 .static-hero .container{position:relative}
-.static-hero h1{font-size:clamp(1.85rem,1.2rem + 3vw,3.1rem);max-width:20ch;color:var(--over-text);text-shadow:var(--tshadow)}
+.static-hero h1{font-size:clamp(2.1rem,1.35rem + 3.4vw,3.6rem);max-width:20ch;color:var(--over-text);text-shadow:var(--tshadow)}
 .static-hero .lede{margin-top:1.25rem;max-width:42ch;color:var(--over-text);text-shadow:var(--tshadow)}
 .static-hero .btn-row{margin-top:2rem}
 

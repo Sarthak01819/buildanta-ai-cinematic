@@ -20,7 +20,7 @@
 /* ----------------------------------------------------------------- btn -- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
   min-height:48px;padding:.85rem 1.4rem;border:2px solid transparent;
-  font:600 .95rem/1.2 var(--font-body);letter-spacing:.01em;text-decoration:none;cursor:pointer;
+  font:600 1rem/1.2 var(--font-body);letter-spacing:.01em;text-decoration:none;cursor:pointer;
   transition:background-color var(--dur) var(--ease),border-color var(--dur) var(--ease),
              color var(--dur) var(--ease),transform 180ms var(--ease)}
 .btn-primary{background:var(--accent);color:var(--accent-ink);
@@ -30,12 +30,15 @@
 .btn-primary:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(30,43,31,.26)}
 .btn-ghost{background:transparent;color:var(--text-primary);border-color:var(--rule-2);text-shadow:none}
 .btn-ghost:hover{color:var(--text-primary);border-color:var(--accent);background:var(--accent-muted)}
-.nav .btn{min-height:42px;padding:.6rem 1rem;font-size:.875rem;white-space:nowrap}
+.nav .btn{min-height:42px;padding:.6rem 1rem;font-size:.95rem;white-space:nowrap}
 /* On a narrow bar the full label wraps to two lines and pushes the header
    taller, so it drops to the verb. The verb is the whole CTA anyway. */
 .nav-cta .lbl-short{display:none}
 @media (max-width:520px){
-  .nav .btn{padding:.6rem .85rem}
+  /* The bar carries the wordmark and this button alone, and on a 320px screen
+     the two meet. The label is already the verb by here, so the type steps back
+     down to where it was before the site's headings grew. */
+  .nav .btn{padding:.6rem .85rem;font-size:.875rem}
   .nav-cta .lbl-full{display:none}
   .nav-cta .lbl-short{display:inline}
   .wordmark span{display:none}

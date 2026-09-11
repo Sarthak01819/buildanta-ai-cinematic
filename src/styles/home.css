@@ -4,8 +4,8 @@
 .tint{background:var(--canvas-2)}
 .kicker{font:500 .6875rem/1 var(--font-mono);letter-spacing:.16em;text-transform:uppercase;
   color:var(--accent);margin-bottom:1rem}
-.section h2{font-size:clamp(1.6rem,1.15rem + 1.9vw,2.6rem);max-width:20ch}
-.lede{color:var(--text-secondary);font-size:clamp(1.02rem,.98rem + .3vw,1.15rem)}
+.section h2{font-size:clamp(1.9rem,1.2rem + 3.2vw,3.75rem);max-width:20ch}
+.lede{color:var(--text-secondary);font-size:clamp(1.15rem,1rem + .9vw,1.5rem)}
 .body{color:var(--text-secondary);max-width:62ch}
 .body+.body{margin-top:1rem}
 .body strong{color:var(--text-primary);font-weight:600}
@@ -53,7 +53,7 @@
 .tool{display:grid;gap:.4rem 2.5rem;padding-block:1.6rem;border-top:1px solid var(--rule);
   align-items:baseline}
 .tool:last-child{border-bottom:1px solid var(--rule)}
-.tool h3{font-size:clamp(1.2rem,1.05rem + .7vw,1.6rem)}
+.tool h3{font-size:clamp(1.3rem,1.1rem + .9vw,1.85rem)}
 .tool p{color:var(--text-secondary);max-width:46ch}
 @media (min-width:820px){.tool{grid-template-columns:minmax(12rem,18rem) 1fr}}
 
@@ -64,7 +64,7 @@
 .phase:first-child{border-top-color:var(--accent)}
 .phase .days{font:500 .75rem/1 var(--font-mono);letter-spacing:.1em;text-transform:uppercase;
   color:var(--accent)}
-.phase h3{margin-top:.85rem;font-size:1.15rem}
+.phase h3{margin-top:.85rem;font-size:1.25rem}
 .phase p{margin-top:.7rem;color:var(--text-secondary);font-size:.95rem}
 
 /* Six things you own, plus the hold. */
@@ -90,7 +90,7 @@
   transition:opacity 600ms var(--ease),background-color 600ms var(--ease)}
 .own.lit{opacity:1;background:var(--canvas-2)}
 .own .n{font:500 .75rem/1 var(--font-mono);color:var(--accent);letter-spacing:.1em}
-.own h3{margin-top:.8rem;font-size:1.1rem}
+.own h3{margin-top:.8rem;font-size:1.25rem}
 .own p{margin-top:.55rem;color:var(--text-secondary);font-size:.94rem}
 
 /* Cohort. */
@@ -162,7 +162,7 @@
   border-left:3px solid var(--accent);font-size:.94rem;color:var(--text-primary);display:none}
 .form-status.on{display:block}
 .aside-card{padding:1.6rem 1.5rem;background:var(--canvas-2);border-top:4px solid var(--accent)}
-.aside-card h3{font-size:1.1rem}
+.aside-card h3{font-size:1.25rem}
 .aside-card p{margin-top:.7rem;color:var(--text-secondary);font-size:.94rem}
 .aside-card .figure{font-size:2rem;margin-top:1.2rem}
 
@@ -175,7 +175,7 @@
 
 /* ------------------------------------------------ appended by the page build -- */
 /* The 404 heading and lede, sized like the inner-page intro. */
-.notfound h1{font-size:clamp(2rem,1.3rem + 2.8vw,3.6rem);max-width:18ch}
+.notfound h1{font-size:clamp(2.25rem,1.4rem + 3.6vw,4.5rem);max-width:18ch}
 .notfound .lede{margin-top:1.25rem;max-width:56ch}
 /* Room between the "Would rather just talk?" heading and its button on the Apply page. */
 .aside-card .btn-row{margin-top:1.2rem}
