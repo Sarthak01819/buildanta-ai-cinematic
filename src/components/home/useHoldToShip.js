@@ -9,8 +9,8 @@ const DONE_LABEL = 'Shipped'
 
 /**
  * The one interactive moment: hold to ship. Press and hold the button and the
- * six things light up, one per sixth of the hold. Let go early and it drains
- * back. Once it is shipped it stays shipped.
+ * cards light up in turn, one per equal share of the hold, however many there
+ * are. Let go early and it drains back. Once it is shipped it stays shipped.
  *
  * Everything happens on the DOM through refs, inside one effect, so the server
  * render is plain markup and hydration has nothing to disagree with. Reduced
@@ -53,8 +53,8 @@ export function useHoldToShip() {
       blocks.forEach((el, i) => el.classList.toggle('lit', i < n))
     }
 
-    /* Once it is shipped it stays shipped. The six things are earned, so they
-       do not fade back out when the visitor lets go. */
+    /* Once it is shipped it stays shipped. They are earned, so they do not
+       fade back out when the visitor lets go. */
     function finish() {
       done = true
       holding = false

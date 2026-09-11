@@ -2,19 +2,25 @@ import Section from '../ui/Section.jsx'
 import { owns } from '../../content/programme.js'
 import { useHoldToShip } from './useHoldToShip.js'
 
-const BLOCKS = [0, 1, 2, 3, 4, 5]
+/* The heading counts the list and the button has one block per item, both read
+   from `owns` rather than written down again. The count used to live in three
+   places, and when two entries were dropped the other two still said six. */
+const WORDS = ['No', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten']
+const count = owns.length
+const countWord = WORDS[count] || String(count)
+const BLOCKS = owns.map((o) => o.n)
 
-/** d. Six things you own, behind the hold. Nothing here arrives without the work. */
+/** d. The things you own, behind the hold. Nothing here arrives without the work. */
 export default function Owns() {
   const { holdRef, ownsRef } = useHoldToShip()
   return (
-    <Section id="own" kicker="What you leave with" title="Six things you own" tint>
+    <Section id="own" kicker="What you leave with" title={`${countWord} things you own`} tint>
       <div className="hold-wrap rise">
         <button ref={holdRef} className="hold" id="hold" type="button" aria-describedby="hold-note">
           <span>Hold to ship it</span>
           <span className="blocks" aria-hidden="true">
-            {BLOCKS.map((i) => (
-              <i key={i} />
+            {BLOCKS.map((n) => (
+              <i key={n} />
             ))}
           </span>
         </button>

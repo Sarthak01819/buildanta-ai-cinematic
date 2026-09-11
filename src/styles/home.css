@@ -157,8 +157,9 @@
 .hold-note{font:500 .75rem/1.5 var(--font-mono);color:var(--text-secondary);letter-spacing:.04em}
 
 .owns{display:grid;gap:1rem}
+/* Two across, which squares off the four cards. Three across was right when
+   there were six of them and would now leave a lone card on its own row. */
 @media (min-width:700px){.owns{grid-template-columns:repeat(2,1fr)}}
-@media (min-width:1000px){.owns{grid-template-columns:repeat(3,1fr)}}
 /* Waiting, then lit. Fading the whole card was the obvious way to say "not yet"
    and the wrong one: group opacity takes the card's own text down with it, and
    at any fade deep enough to read as dimmed the words fell under 4.5:1. So the

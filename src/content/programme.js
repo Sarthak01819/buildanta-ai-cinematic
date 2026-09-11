@@ -48,14 +48,16 @@ export const phases = [
   },
 ]
 
-/** Six things you own. */
+/**
+ * Four things you own. The count is read from this list, not written down
+ * anywhere else, so adding or removing one here is the whole change: the
+ * heading, the grid and the hold all follow.
+ */
 export const owns = [
   { n: '01', name: 'A live URL', text: 'A real project on the real internet, not a folder on your laptop.' },
   { n: '02', name: 'A public repo', text: 'The code, with your name on it.' },
-  { n: '03', name: 'A demo video', text: 'You, explaining what you made.' },
-  { n: '04', name: 'A mock interview', text: 'With written feedback. Specific.' },
-  { n: '05', name: 'A case study', text: 'Written properly, ready to post.' },
-  { n: '06', name: 'An honest certificate', text: 'It says what you actually did. Nothing inflated.' },
+  { n: '03', name: 'A mock interview', text: 'With written feedback. Specific.' },
+  { n: '04', name: 'An honest certificate', text: 'It says what you actually did. Nothing inflated.' },
 ]
 
 export const faq = [
