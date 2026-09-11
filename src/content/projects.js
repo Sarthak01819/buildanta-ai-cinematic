@@ -11,7 +11,6 @@
  * @property {string} line          One line from the student about what it does
  * @property {string} liveUrl       The live URL
  * @property {string} repoUrl       The public repository
- * @property {string} videoUrl      The demo video
  * @property {string} [screenshot]  Path under /public, e.g. '/proof/batch1-aditi.jpg'
  * @property {number} batch         Batch number
  */

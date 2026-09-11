@@ -66,7 +66,7 @@ export default function ScrubHero() {
                 {splitWords('Twenty-eight days at this desk.', seedFor(3))}
               </p>
               <p className="lede">
-                You leave with a live URL, the repo behind it, and a video of you explaining what you made.
+                You leave with a live URL and the repo behind it.
               </p>
               <div className="btn-row">
                 <ApplyButton />

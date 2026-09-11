@@ -55,11 +55,11 @@ export default function Terms() {
       <p>
         {site.programme} is a {site.batch.days}-day programme: two weeks conducted in person at our {site.city}{' '}
         premises, and two weeks of remote follow-through. It covers Claude Code, AI agents, AI video generation and AI
-        development. Each student builds and publishes one project.
+        Web/App development. Each student builds and publishes one project.
       </p>
       <p>
-        On completion a student receives a live project URL, a public code repository, a demo video, a mock interview
-        with written feedback, a LinkedIn case study, and a certificate of completion stating what they did.
+        On completion a student receives a live project URL, a public code repository, a mock interview with written
+        feedback, and a certificate of completion stating what they did.
       </p>
 
       <h2>2. Enrolment</h2>
@@ -103,8 +103,7 @@ export default function Terms() {
       </p>
       <p>
         <strong>The project you build is yours.</strong> Because the programme is built around publishing work in
-        public, we may link to, display, or reference your published project, repository and demo video in our own
-        materials.
+        public, we may link to, display, or reference your published project and repository in our own materials.
       </p>
       <Decide>
         <p>State whether a student may opt out of this, and how.</p>

@@ -63,7 +63,7 @@ export const owns = [
 export const faq = [
   {
     q: 'Do you guarantee a job?',
-    a: 'No. Nobody honestly can. What we commit to is the work: in twenty-eight days you have a live project, the repo behind it, a demo video and a mock interview with real feedback. Those are yours, and you can show them to anyone.',
+    a: 'No. Nobody honestly can. What we commit to is the work: in twenty-eight days you have a live project, the repo behind it and a mock interview with real feedback. Those are yours, and you can show them to anyone.',
   },
   {
     q: 'Are there students who finished already?',
@@ -83,7 +83,7 @@ export const faq = [
   },
   {
     q: 'Is the certificate worth anything?',
-    a: 'On its own, no certificate is. Ours says exactly what you did. The live URL, the repo and the demo video are the parts that carry weight, which is why the programme is built around producing them.',
+    a: 'On its own, no certificate is. Ours says exactly what you did. The live URL and the repo are the parts that carry weight, which is why the programme is built around producing them.',
   },
   {
     q: 'Can my parents talk to someone before I decide?',

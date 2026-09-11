@@ -30,8 +30,8 @@ export default function ForParents() {
             </p>
             <p>
               <strong>What your child leaves with.</strong> A working project live on the internet, the code behind it
-              in a public repository, a video of them explaining it, a mock interview with written feedback, a LinkedIn
-              case study, and a certificate that states exactly what they did.
+              in a public repository, a mock interview with written feedback, and a certificate that states exactly
+              what they did.
             </p>
             <p>
               <strong>What we do not promise.</strong> We do not guarantee a job. We do not quote salary figures. Any

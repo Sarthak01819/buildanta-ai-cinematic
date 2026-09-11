@@ -3,7 +3,6 @@ import { site } from '../../config/site.js'
 const LINKS = [
   ['liveUrl', 'Live URL'],
   ['repoUrl', 'Repository'],
-  ['videoUrl', 'Demo video'],
 ]
 
 /**
@@ -21,7 +20,7 @@ export default function ProjectCard({ project, n }) {
         <div className="project-body">
           <h3>Project {n}</h3>
           <p className="line">
-            Screenshot, project name, live URL, repository, demo video and one line from the student.
+            Screenshot, project name, live URL, repository and one line from the student.
           </p>
           <p className="project-links">
             {LINKS.map(([key, label]) => (
