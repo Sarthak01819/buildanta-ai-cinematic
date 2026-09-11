@@ -32,10 +32,10 @@ export const site = {
   },
 
   /** E.164 with the plus sign, e.g. '+919876543210'. Used for tel: links. */
-  phone: null,
+  phone: '+919196027117',
 
   /** Digits only, international format, no plus, e.g. '919876543210'. Used for wa.me links. */
-  whatsapp: '919876543210',
+  whatsapp: '919196027117',
 
   /** A real inbox a human reads. */
   email: null,
