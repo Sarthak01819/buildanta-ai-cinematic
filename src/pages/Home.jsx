@@ -5,7 +5,6 @@ import Days from '../components/home/Days.jsx'
 import Owns from '../components/home/Owns.jsx'
 import Cohort from '../components/home/Cohort.jsx'
 import Price from '../components/home/Price.jsx'
-import ProofPreview from '../components/home/ProofPreview.jsx'
 import Faq from '../components/home/Faq.jsx'
 import Closer from '../components/home/Closer.jsx'
 
@@ -20,7 +19,6 @@ export default function Home() {
       <Owns />
       <Cohort />
       <Price />
-      <ProofPreview />
       <Faq />
       <Closer />
     </>

@@ -190,12 +190,11 @@
   white-space:nowrap;color:var(--text-primary)}
 
 /* Proof, kept deliberately empty. */
-.empty{margin-top:2rem;padding:clamp(1.6rem,4vw,2.6rem)}
-.empty .label{font:500 .75rem/1 var(--font-mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--accent)}
-.slots{display:grid;gap:.75rem;margin-top:1.5rem}
-@media (min-width:700px){.slots{grid-template-columns:repeat(3,1fr)}}
-.slot{padding:1.1rem;font:500 .85rem var(--font-mono)}
+/* The home page's empty Proof block and its three reserved slots were removed
+   with that section. The Proof page's own reserved cards carry the class
+   `slot` too, and were quietly relying on the padding and type that lived
+   here; those two declarations moved onto `.project.slot` in panels.css, where
+   the rest of that card is described. */
 
 /* FAQ. */
 .faq{max-width:56rem;margin-top:.5rem}

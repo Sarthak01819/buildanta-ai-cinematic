@@ -20,7 +20,6 @@
 .aside-card,
 .contact-card,
 .project,
-.empty,
 .callout,
 .decide,
 .form-status,
@@ -38,13 +37,13 @@
 .price .figure,.aside-card .figure{color:var(--surface-ink)}
 
 .phase p,.own p,.aside-card p,.contact-card p,.contact-card address,
-.project-body .line,.price .note,.callout,.decide,.slot,.form-status{color:var(--surface-ink-2)}
+.project-body .line,.price .note,.callout,.decide,.form-status{color:var(--surface-ink-2)}
 
 .callout strong,.decide strong,.form-status strong,.contact-card strong{color:var(--surface-ink)}
 
 /* The small mono labels that were the page accent green. That green is nearly
    the card's own colour, so on a card it becomes the mint instead. */
-.phase .days,.own .n,.project-body .n,.empty .label,.decide .label{color:var(--surface-accent)}
+.phase .days,.own .n,.project-body .n,.decide .label{color:var(--surface-accent)}
 
 /* Links on a card: the ink, underlined, with the mint on hover. */
 .contact-card a,.callout a,.decide a,.form-status a{color:var(--surface-ink)}
@@ -75,13 +74,6 @@
 /* The price block kept a left accent bar; on green it becomes the mint. */
 .price{border-left:4px solid var(--surface-accent)}
 
-/* The deliberately empty Proof state keeps its dashed edge, redrawn on green. */
-.empty{border:2px dashed var(--surface-line)}
-
-/* A slot is a panel within a panel, so it lifts rather than repeats the card. */
-.slot{background:rgba(237,243,227,.07);border:1px solid var(--surface-line);
-  border-left:3px solid var(--surface-accent);border-radius:var(--radius-sm)}
-
 /* The callout and the decide box are quieter than a full card: flatter, and
    the warn variant is the one that gets the mint edge. */
 .callout,.decide{box-shadow:none;background:rgba(37,72,48,.92)}
@@ -109,7 +101,8 @@
    it, so instead they sit on a flatter green behind a dashed edge: still
    plainly waiting, still readable. */
 .project.slot{background:#31563C;border:1px dashed var(--surface-line);
-  border-radius:var(--radius);box-shadow:none;opacity:1}
+  border-radius:var(--radius);box-shadow:none;opacity:1;
+  padding:1.1rem;font:500 .85rem var(--font-mono)}
 .project.slot .project-body h3,.project.slot .project-links{color:var(--surface-ink-2)}
 .project.slot .project-links a{color:var(--surface-ink-2)}
 
@@ -130,21 +123,20 @@
    with dark ink: 7:1, and it reads as the brighter of the two, which is what a
    primary action should do. */
 .aside-card .btn-ghost,.contact-card .btn-ghost,.phase .btn-ghost,.own .btn-ghost,
-.callout .btn-ghost,.decide .btn-ghost,.price .btn-ghost,.empty .btn-ghost{
+.callout .btn-ghost,.decide .btn-ghost,.price .btn-ghost{
   color:var(--surface-ink);border-color:var(--surface-edge);background:transparent}
 .aside-card .btn-ghost:hover,.contact-card .btn-ghost:hover,.phase .btn-ghost:hover,
 .own .btn-ghost:hover,.callout .btn-ghost:hover,.decide .btn-ghost:hover,
-.price .btn-ghost:hover,.empty .btn-ghost:hover{
+.price .btn-ghost:hover{
   color:var(--surface-ink);border-color:var(--surface-accent);background:rgba(168,204,133,.16)}
 
-.aside-card .btn-primary,.contact-card .btn-primary,.price .btn-primary,
-.empty .btn-primary,.callout .btn-primary{
+.aside-card .btn-primary,.contact-card .btn-primary,.price .btn-primary,.callout .btn-primary{
   background:var(--surface-accent);color:#1B3A24;box-shadow:0 10px 22px -12px rgba(10,25,15,.7)}
 .aside-card .btn-primary:hover,.contact-card .btn-primary:hover,.price .btn-primary:hover,
-.empty .btn-primary:hover,.callout .btn-primary:hover{background:#BFDCA0;color:#1B3A24}
+.callout .btn-primary:hover{background:#BFDCA0;color:#1B3A24}
 
 /* List bullets were the page accent, which is the card's own colour here. */
-.callout li::marker,.decide li::marker,.aside-card li::marker,.empty li::marker{
+.callout li::marker,.decide li::marker,.aside-card li::marker{
   color:var(--surface-accent)}
 
 /* On the legal pages these boxes sit inside .prose, and `.prose p` and
@@ -154,9 +146,8 @@
    inheritance. */
 .callout p,.callout li,.callout ul,.callout ol,.callout em,
 .decide p,.decide li,.decide ul,.decide ol,.decide em,
-.empty p,.empty li,.empty ul,.empty ol,
 .aside-card p,.aside-card li,.contact-card p{color:var(--surface-ink-2)}
-.callout h2,.callout h3,.decide h2,.decide h3,.empty h2,.empty h3{color:var(--surface-ink)}
+.callout h2,.callout h3,.decide h2,.decide h3{color:var(--surface-ink)}
 
 /* The reserved project cards list their fields as spans, not links. */
 .project-links,.project-links span{color:var(--surface-ink-2)}
