@@ -27,8 +27,9 @@ export const site = {
 
   /** Street address and PIN. Both null until the owner supplies them. */
   address: {
-    street: null, // e.g. '12, Some Road, Civil Lines'
-    pin: null, // e.g. '208001'
+    /** Everything above the city line. `cityLine()` adds 'Kanpur, Uttar Pradesh 208015' after it. */
+    street: 'Awas Vikas No. 3, Panki, Avas Vikas III, Kalyanpur',
+    pin: '208015',
   },
 
   /** E.164 with the plus sign, e.g. '+919876543210'. Used for tel: links. */
@@ -38,7 +39,7 @@ export const site = {
   whatsapp: '919196027117',
 
   /** A real inbox a human reads. */
-  email: null,
+  email: 'buildantapvtltd@gmail.com',
 
   /** 15-character GSTIN. Shown in the footer and on the Terms page. */
   gstin: null,
