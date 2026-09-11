@@ -35,10 +35,10 @@
    taller, so it drops to the verb. The verb is the whole CTA anyway. */
 .nav-cta .lbl-short{display:none}
 @media (max-width:520px){
-  /* The bar carries the wordmark and this button alone, and on a 320px screen
-     the two meet. The label is already the verb by here, so the type steps back
-     down to where it was before the site's headings grew. */
-  .nav .btn{padding:.6rem .85rem;font-size:.875rem}
+  /* Below here the bar carries the wordmark and this button alone, and the
+     label drops to the verb, which leaves the type free to stay at its
+     full size even on a 320px screen. */
+  .nav .btn{padding:.6rem .85rem}
   .nav-cta .lbl-full{display:none}
   .nav-cta .lbl-short{display:inline}
   .wordmark span{display:none}
