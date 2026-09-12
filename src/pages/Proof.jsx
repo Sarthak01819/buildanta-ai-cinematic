@@ -25,8 +25,8 @@ export default function Proof() {
         <div className="container">
           <div className="prose rise">
             <p>
-              When it finishes, every student's work is published on this page: the live URL and the public
-              repository. Not a description of it. The actual thing, that you can open and check.
+              After students finish, we feature their work here with their written permission: the live URLs and
+              public repositories, so you can open the projects and check them yourself.
             </p>
             <p>
               That is what "we ship in public" means — if we say a student built something, you should be able to

@@ -63,10 +63,10 @@ export default function ScrubHero() {
           <div className="band b4 is-live" data-a="0.84" data-b="1" aria-hidden="true">
             <div className="band-inner">
               <p className="h" data-split="word">
-                {splitWords('Twenty-eight days at this desk.', seedFor(3))}
+                {splitWords('Twenty-eight days. Work you can show.', seedFor(3))}
               </p>
               <p className="lede">
-                You leave with a live URL and the repo behind it.
+                Three guided projects. Then your own idea, shipped.
               </p>
               <div className="btn-row">
                 <ApplyButton />

@@ -38,7 +38,7 @@ export default function Owns() {
         ))}
       </div>
       <p className="body rise" style={{ marginTop: '2rem' }}>
-        Every one of these is something you can send to a stranger. That is the point.
+        Work you can show. Decisions you can explain. That is the point.
       </p>
     </Section>
   )

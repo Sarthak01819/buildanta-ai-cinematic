@@ -16,7 +16,8 @@ export default function Closer() {
         </div>
         <aside className="aside-card rise" aria-labelledby="aside-h">
           <h3 id="aside-h">Batch 1 is forming</h3>
-          <p>The first two weeks run offline in Kanpur, then two weeks of remote follow-through.</p>
+          <p>Fourteen days in the classroom in Kanpur, then fourteen days building your own idea remotely.</p>
+          <p>A written scope, live check-ins on days 21 and 28, and help between them.</p>
           <p>Three seats, and the whole team on them.</p>
           <span className="figure" aria-hidden="true">
             28

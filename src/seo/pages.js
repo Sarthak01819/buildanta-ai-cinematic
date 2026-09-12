@@ -10,7 +10,7 @@ export const PAGES = [
     path: '/',
     title: 'AI Institute in Kanpur — Claude Code & AI Agents | BUILDANTA',
     description:
-      'An offline AI institute in Kanpur teaching Claude Code, AI agents and AI video generation. Twenty-eight days, one live project, shipped in public. Batch 1 is forming.',
+      'Learn AI in Kanpur over 28 days: three guided projects, then your own idea. Fourteen classroom days and fourteen remote days with support. Batch 1 is forming.',
     schema: ['organization', 'course', 'faq'],
   },
   {
@@ -31,7 +31,7 @@ export const PAGES = [
     path: '/proof',
     title: 'Student Work — Live Projects from BUILDANTA AI INSTITUTE',
     description:
-      "Every student ships a real project in public. Batch 1 hasn't started yet, so this page is empty — by choice, not by accident.",
+      'Student projects, shared with written permission: live applications, agents, media and independent builds. Batch 1 has not started, so no work is shown yet.',
   },
   {
     path: '/why',

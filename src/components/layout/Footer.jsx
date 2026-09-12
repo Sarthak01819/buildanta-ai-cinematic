@@ -93,7 +93,7 @@ export default function Footer() {
               <Link to="/terms">Terms &amp; Conditions</Link>
               <Link to="/refund">Refund &amp; Cancellation</Link>
             </nav>
-            <p className="body">We do not teach a course. We ship one project per student, in public.</p>
+            <p className="body">Three guided projects. Then your own idea, shipped in public. Work you can show and explain.</p>
           </div>
         </div>
         <div className="footer-base">

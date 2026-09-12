@@ -29,11 +29,12 @@ export default function Why() {
             <p>
               We are not an education company that added an AI course. We are a company that needed these skills, could
               not buy them, and now teaches them the way we would want a new hire to learn: by shipping something real,
-              explaining it out loud every day, and sitting an interview about their own work before they leave.
+              explaining it at the end of each classroom day, and sitting a mock interview about their own work.
             </p>
             <p>
-              That is why every student ships one project in public. It is the only version of "we taught you
-              something" that anyone else can check.
+              That is why every student works through three guided builds before choosing and finishing a project
+              of their own. Public links, clean repositories and an explanation in their own words let someone else
+              check what they actually learned.
             </p>
           </div>
           <div className="plate rise">

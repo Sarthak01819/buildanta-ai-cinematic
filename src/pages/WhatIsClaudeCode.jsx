@@ -68,8 +68,8 @@ export default function WhatIsClaudeCode() {
               <Link to="/#programme">
                 {site.name} in {site.city}
               </Link>{' '}
-              — {site.batch.days} days, one real project, shipped in public, with a daily explain-back so you cannot
-              skip the understanding.
+              — {site.batch.days} days, three guided projects and a project you choose yourself, with explain-backs
+              throughout so you can describe the decisions behind the work.
             </p>
             <div className="btn-row">
               <ApplyButton />

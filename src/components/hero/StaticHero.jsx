@@ -15,7 +15,7 @@ export default function StaticHero() {
       <div className="container">
         <h1 id="sh-heading">We tried to hire people who knew these tools. In all of Kanpur, we found nobody.</h1>
         <p className="lede">
-          So we built the room where they get made. Twenty-eight days, one live project, shipped in public.
+          So we built the room where they get made. Twenty-eight days. Three guided projects, then your own idea, shipped.
         </p>
         <div className="btn-row">
           <ApplyButton />

@@ -28,9 +28,8 @@ function formatDate(iso) {
  * line, then the long-form body. `lede` is the opening paragraph under the
  * rule; everything else is passed as children.
  */
-export default function LegalPage({ id, title, lede, children }) {
+export default function LegalPage({ id, title, lede, children, updated = site.legal.lastUpdated }) {
   const ref = useReveal()
-  const updated = site.legal.lastUpdated
   return (
     <>
       <PageIntro id={id} kicker="Legal" title={title}>

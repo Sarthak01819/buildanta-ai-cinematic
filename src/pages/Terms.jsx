@@ -27,6 +27,7 @@ export default function Terms() {
     <LegalPage
       id="terms"
       title="Terms & Conditions"
+      updated="2026-09-12"
       lede={
         <>
           These terms govern your use of {DOMAIN} and your enrolment in the {site.programme} programme offered by{' '}
@@ -53,13 +54,16 @@ export default function Terms() {
 
       <h2>1. What the programme is</h2>
       <p>
-        {site.programme} is a {site.batch.days}-day programme: two weeks conducted in person at our {site.city}{' '}
-        premises, and two weeks of remote follow-through. It covers Claude Code, AI agents, AI video generation and AI
-        Web/App development. Each student builds and publishes one project.
+        {site.programme} is a {site.batch.days}-day programme. Days 1 to 14 take place at our {site.city} premises:
+        three days of tool fluency, nine days for three guided projects and two days of hardening and a mock interview.
+        Days 15 to 28 are remote, for a project chosen by the student. It covers Claude Code, AI agents, AI video
+        generation and AI Web/App development.
       </p>
       <p>
-        On completion a student receives a live project URL, a public code repository, a mock interview with written
-        feedback, and a certificate of completion stating what they did.
+        The guided projects are a web application, an agent and a media piece. The independent project has a written
+        scope, scheduled live check-ins on days 21 and 28, and asynchronous help between them. On completion, students
+        have their four projects with public links and clean repositories, a mock interview with written feedback,
+        and a certificate of completion stating what they did.
       </p>
 
       <h2>2. Enrolment</h2>
@@ -79,7 +83,7 @@ export default function Terms() {
 
       <h2>4. What we do not promise</h2>
       <p>
-        <strong>We do not guarantee employment, placement, an interview, or any particular income.</strong> No
+        <strong>We do not guarantee employment, placement, a job interview, or any particular income.</strong> No
         statement on our website, in our advertising, or by any of our staff should be read as such a guarantee. Any
         market statistics we publish are cited context about the wider job market and are not a prediction about any
         individual student's outcome.
@@ -88,8 +92,9 @@ export default function Terms() {
 
       <h2>5. Your responsibilities</h2>
       <p>
-        The programme depends on daily participation and a daily explain-back. Sustained absence will materially affect
-        what you get from it. Please tell us in advance if you will miss a session.
+        The programme depends on daily participation, explain-backs at the end of each classroom day, and the
+        scheduled remote check-ins, including the final explain-back. Sustained absence will materially affect what
+        you get from it. Please tell us in advance if you will miss a session.
       </p>
       <p>
         You agree not to disrupt other students' learning, and to use any accounts or tools we provide only for
@@ -102,12 +107,9 @@ export default function Terms() {
         not redistribute or resell it.
       </p>
       <p>
-        <strong>The project you build is yours.</strong> Because the programme is built around publishing work in
-        public, we may link to, display, or reference your published project and repository in our own materials.
+        <strong>The projects you build are yours.</strong> We will obtain your written permission before publishing
+        your name or featuring your projects and repositories on our website or in our own materials.
       </p>
-      <Decide>
-        <p>State whether a student may opt out of this, and how.</p>
-      </Decide>
 
       <h2>7. Changes and cancellation by us</h2>
       <p>

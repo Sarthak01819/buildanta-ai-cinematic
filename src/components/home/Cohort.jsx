@@ -21,7 +21,8 @@ export default function Cohort() {
               attention a hall of forty cannot get.
             </p>
             <p className="body rise">
-              Three students, with the whole team on them. If you are stuck, someone notices the same day.
+              Three students, with the whole team on them. Daily mentor attention in the classroom, then two live
+              check-ins and asynchronous help while you build your own idea remotely.
             </p>
           </div>
         </div>
