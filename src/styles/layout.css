@@ -1,16 +1,32 @@
 /* ------------------------------------------------------------------ nav -- */
-.nav{position:fixed;top:0;left:0;right:0;z-index:60;
+html{scroll-padding-top:calc(88px + env(safe-area-inset-top,0px))}
+.nav{position:fixed;top:0;left:50%;width:100%;z-index:60;transform:translateX(-50%);
+  border:1px solid transparent;border-radius:0;background-color:rgba(232,240,226,0);
+  -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+  transition:width 680ms var(--ease),top 680ms var(--ease),border-radius 680ms var(--ease),
+    background-color 480ms var(--ease-soft),border-color 480ms var(--ease-soft),
+    box-shadow 680ms var(--ease),backdrop-filter 680ms var(--ease),-webkit-backdrop-filter 680ms var(--ease)}
+/* Fade the dark scrim separately so the glass appears without a gradient jump. */
+.nav::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background:linear-gradient(180deg,rgba(12,17,9,.78),rgba(12,17,9,.40) 62%,rgba(12,17,9,0));
-  backdrop-filter:blur(10px);
-  transition:background 420ms var(--ease-soft),border-color 420ms var(--ease-soft)}
-/* The bar rides dark footage at the top and beige page below it, so it changes
-   with the ground under it rather than fighting one of the two. */
-.nav.solid{background:rgba(232,240,226,.94);border-bottom:1px solid var(--rule)}
+  opacity:1;transition:opacity 480ms var(--ease-soft)}
+.nav.solid{top:calc(16px + env(safe-area-inset-top,0px));width:min(1060px,calc(100% - 48px));
+  border-radius:36px;border-color:rgba(255,255,255,.65);background-color:rgba(232,240,226,.78);
+  -webkit-backdrop-filter:blur(22px) saturate(145%);backdrop-filter:blur(22px) saturate(145%);
+  box-shadow:0 14px 38px -18px rgba(18,42,26,.45),0 3px 10px -5px rgba(18,42,26,.16),
+    inset 0 1px 0 rgba(255,255,255,.65)}
+.nav.solid::before{opacity:0}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .nav.solid{background-color:rgba(232,240,226,.97)}
+}
 .nav .wordmark{color:var(--over-text)}
 .nav .wordmark span{color:rgba(246,241,228,.74)}
 .nav.solid .wordmark{color:var(--text-primary)}
 .nav.solid .wordmark span{color:var(--text-secondary)}
-.nav-inner{display:flex;align-items:center;gap:1.25rem;min-height:68px}
+.nav-inner{position:relative;display:flex;align-items:center;gap:1.25rem;min-height:66px;
+  transition:min-height 680ms var(--ease),padding 680ms var(--ease)}
+.nav.solid .nav-inner{min-height:62px;padding-inline:20px}
+.nav .wordmark,.nav .wordmark span{transition:color 480ms var(--ease-soft)}
 .wordmark{display:flex;align-items:baseline;gap:.55rem;text-decoration:none;
   white-space:nowrap}
 .wordmark b{font:800 1.15rem/1 var(--font-heading);letter-spacing:0;font-synthesis:none}
@@ -30,11 +46,13 @@
 .btn-primary:active{transform:translateY(1px);box-shadow:0 6px 14px -10px rgba(20,45,28,.7)}
 .btn-ghost{background:transparent;color:var(--text-primary);border-color:var(--rule-2);text-shadow:none}
 .btn-ghost:hover{color:var(--text-primary);border-color:var(--accent);background:var(--accent-muted)}
-.nav .btn{min-height:42px;padding:.6rem 1rem;font-size:.95rem;white-space:nowrap}
+.nav .btn{min-height:44px;padding:.6rem 1rem;font-size:.95rem;white-space:nowrap}
 /* On a narrow bar the full label wraps to two lines and pushes the header
    taller, so it drops to the verb. The verb is the whole CTA anyway. */
 .nav-cta .lbl-short{display:none}
 @media (max-width:520px){
+  .nav.solid{top:calc(10px + env(safe-area-inset-top,0px));width:calc(100% - 20px)}
+  .nav.solid .nav-inner{padding-inline:12px;gap:.75rem}
   /* Below here the bar carries the wordmark and this button alone, and the
      label drops to the verb, which leaves the type free to stay at its
      full size even on a 320px screen. */
@@ -45,4 +63,3 @@
 }
 .btn-row{display:flex;flex-wrap:wrap;gap:.9rem;align-items:center}
 @media (pointer:coarse){.btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center}}
-
