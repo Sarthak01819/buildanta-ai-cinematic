@@ -26,16 +26,14 @@ export default function Closer() {
           </p>
         </aside>
       </div>
-      <div className="plate rise">
-        <img
-          src="/assets/hero-ending.jpg"
-          alt="A rendered office at dusk: a wooden desk, a lamp, a plant, and a monitor showing the BUILDANTA logo."
-          width="1536"
-          height="864"
-          loading="lazy"
-          decoding="async"
-        />
-      </div>
+      <div
+        className="plate certificate-preview rise"
+        role="img"
+        aria-label="Sample BUILDANTA AI INSTITUTE certificate of completion for the AI CareerNext programme, with placeholders for the student name, certificate number and issue date."
+        draggable={false}
+        onContextMenu={(event) => event.preventDefault()}
+        onDragStart={(event) => event.preventDefault()}
+      />
     </Section>
   )
 }

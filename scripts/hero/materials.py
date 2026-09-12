@@ -11,9 +11,11 @@ def setp(obj, name, val):
     except Exception: return False
 
 def tex_path(key, suffix):
+    aliases = ("diff", "albedo", "basecolor", "base_color") if suffix == "diff" else (suffix,)
     for res in ("2k", "4k", "1k"):
-        p = os.path.join(TEXDIR, key, "%s_%s_%s.jpg" % (key, suffix, res))
-        if os.path.exists(p): return p
+        for label in aliases:
+            p = os.path.join(TEXDIR, key, "%s_%s_%s.jpg" % (key, label, res))
+            if os.path.exists(p): return p
     return None
 
 def load_img(path, colorspace):
@@ -30,9 +32,15 @@ def box_uv(o, space="world"):
     attr = me.attributes["BoxUV"]
     if space == "world":
         bpy.context.view_layer.update(); mw = o.matrix_world.copy()
+    elif space == "object":
+        # glTF furniture carries its scale on objects and parents (the desk is
+        # about 10,000x). Keep the grain attached, but measure it in real metres.
+        bpy.context.view_layer.update()
+        scale = o.matrix_world.to_scale()
+        mw = Matrix.Diagonal((scale.x, scale.y, scale.z, 1.0))
     else:
-        mw = Matrix.Identity(4)
-    m3 = mw.to_3x3()
+        raise ValueError("BoxUV space must be world or object")
+    m3 = mw.to_3x3().inverted_safe().transposed()
     vs = me.vertices; loops = me.loops
     for poly in me.polygons:
         n = m3 @ poly.normal
@@ -60,7 +68,7 @@ def mix_rgb(nt, fac, a, b, blend="MIX"):
     return n.outputs[2]
 
 def pbr_nodes(nt, key, tile=2.0, bump=0.3, bump_dist=0.02, tint=(1, 1, 1), rough_mul=1.0, rough_add=0.0,
-              ao=0.7, interp="Linear", uv="BoxUV", vector=None):
+              ao=0.7, interp="Linear", uv="BoxUV", vector=None, normal_strength=1.0):
     """Builds the texture network inside `nt`. Returns (color, roughness, normal) sockets, any of which
     may be None when the set lacks that map. `vector` overrides the UV lookup with any vector socket."""
     mp = nt.nodes.new("ShaderNodeMapping"); mp.inputs["Scale"].default_value = (1.0 / tile, 1.0 / tile, 1.0 / tile)
@@ -75,6 +83,8 @@ def pbr_nodes(nt, key, tile=2.0, bump=0.3, bump_dist=0.02, tint=(1, 1, 1), rough
         nt.links.new(mp.outputs[0], t.inputs[0]); return t
     color = rough = normal = None
     d = tex("diff", "sRGB")
+    if d is None:
+        raise FileNotFoundError("Missing colour map for %s in %s; run fetch_textures.py" % (key, TEXDIR))
     if d:
         color = mix_rgb(nt, 1.0, d.outputs["Color"], tint, "MULTIPLY")
     arm = tex("arm", "Non-Color")
@@ -85,6 +95,7 @@ def pbr_nodes(nt, key, tile=2.0, bump=0.3, bump_dist=0.02, tint=(1, 1, 1), rough
     nor = tex("nor_gl", "Non-Color")
     if nor and vector is None:
         nm = nt.nodes.new("ShaderNodeNormalMap"); nm.uv_map = uv
+        nm.inputs["Strength"].default_value = normal_strength
         nt.links.new(nor.outputs["Color"], nm.inputs["Color"]); normal = nm.outputs["Normal"]
     disp = tex("disp", "Non-Color")
     if disp and bump > 0:
@@ -170,14 +181,16 @@ def curtain_wall_material(name, win_w=3.0, floor_h=3.6, lit_fraction=0.06, concr
     lit = math(nt, "MULTIPLY", math(nt, "GREATER_THAN", r_lit, 1.0 - lit_fraction), is_win)
     # glass: dark reflective, per-pane tint and a low-frequency wobble in the reflections
     glass = nt.nodes.new("ShaderNodeBsdfPrincipled")
-    glass.inputs["Metallic"].default_value = 0.75; glass.inputs["Roughness"].default_value = 0.10
-    glass.inputs["Specular IOR Level"].default_value = 0.8
-    nt.links.new(mix_rgb(nt, r_tint, (0.07, 0.12, 0.16), (0.12, 0.17, 0.19)), glass.inputs["Base Color"])
+    glass.inputs["Metallic"].default_value = 0.35
+    glass.inputs["Specular IOR Level"].default_value = 0.5
+    glass.inputs["Coat Weight"].default_value = 0.65; glass.inputs["Coat Roughness"].default_value = 0.08
+    nt.links.new(math(nt, "MULTIPLY_ADD", r_tone, 0.09, 0.065), glass.inputs["Roughness"])
+    nt.links.new(mix_rgb(nt, r_tint, (0.025, 0.040, 0.045), (0.055, 0.075, 0.078)), glass.inputs["Base Color"])
     nt.links.new(mix_rgb(nt, math(nt, "GREATER_THAN", r_tone, 0.72), (1.0, 0.80, 0.52), (0.82, 0.90, 1.0)), glass.inputs["Emission Color"])
     nt.links.new(math(nt, "MULTIPLY", lit, math(nt, "MULTIPLY_ADD", r_tone, 1.2, 0.7)), glass.inputs["Emission Strength"])
     wob = nt.nodes.new("ShaderNodeTexNoise"); wob.inputs["Scale"].default_value = 0.45; wob.inputs["Detail"].default_value = 1.5
     nt.links.new(geo.outputs["Position"], wob.inputs["Vector"])
-    gb = nt.nodes.new("ShaderNodeBump"); gb.inputs["Strength"].default_value = 0.06; gb.inputs["Distance"].default_value = 0.08
+    gb = nt.nodes.new("ShaderNodeBump"); gb.inputs["Strength"].default_value = 0.035; gb.inputs["Distance"].default_value = 0.025
     nt.links.new(wob.outputs["Fac"], gb.inputs["Height"]); nt.links.new(gb.outputs["Normal"], glass.inputs["Normal"])
     # mullions: dark anodised aluminium
     frame = nt.nodes.new("ShaderNodeBsdfPrincipled")
@@ -187,7 +200,13 @@ def curtain_wall_material(name, win_w=3.0, floor_h=3.6, lit_fraction=0.06, concr
     color, rough, normal = pbr_nodes(nt, concrete_key, tile=floor_h, bump=0.35, bump_dist=0.03, tint=(0.86, 0.85, 0.83), rough_add=0.05)
     if color is not None:
         tint = mix_rgb(nt, oi.outputs["Random"], (0.78, 0.76, 0.73), (1.0, 0.99, 0.96))
-        nt.links.new(mix_rgb(nt, 1.0, color, tint, "MULTIPLY"), conc.inputs["Base Color"])
+        varied = mix_rgb(nt, 1.0, color, tint, "MULTIPLY")
+        # Quiet per-panel variation and rain deposits at the sill break the perfect grid.
+        panel_tone = mix_rgb(nt, r_tint, (0.84, 0.83, 0.81), (1.0, 1.0, 1.0))
+        varied = mix_rgb(nt, 0.5, varied, panel_tone, "MULTIPLY")
+        rain = math(nt, "MULTIPLY", band(fv, 0.12, 0.235), band(fu, 0.10, 0.90))
+        rain = math(nt, "MULTIPLY", rain, math(nt, "MULTIPLY_ADD", r_tone, 0.13, 0.02))
+        nt.links.new(mix_rgb(nt, rain, varied, (0.48, 0.47, 0.43), "MULTIPLY"), conc.inputs["Base Color"])
     else:
         conc.inputs["Base Color"].default_value = (0.6, 0.58, 0.55, 1)
     if rough is not None: nt.links.new(rough, conc.inputs["Roughness"])

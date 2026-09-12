@@ -254,6 +254,14 @@
 .plate::after{content:"";position:absolute;inset:0;
   background:linear-gradient(180deg,rgba(232,240,226,0) 62%,rgba(232,240,226,.94))}
 
+/* A display-only certificate preview; preserve its full border and signatures.
+   These controls discourage casual saving, not screenshots or asset extraction. */
+.plate.certificate-preview{width:80%;margin-inline:auto;aspect-ratio:3508/2480;
+  background:#fff url('/assets/certificate-preview.webp') center/contain no-repeat;
+  user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.plate.certificate-preview::after{content:none}
+@media print{.certificate-preview{display:none}}
+
 
 /* ------------------------------------------------ appended by the page build -- */
 /* The 404 heading and lede, sized like the inner-page intro. */

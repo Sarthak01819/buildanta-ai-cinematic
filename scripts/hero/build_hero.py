@@ -1,6 +1,6 @@
 # BUILDANTA hero flythrough, city version. Blender 5.1, background mode.
 #   blender -b --python build_hero.py -- MODE OUTDIR KENNEY_DIR MODELS_DIR LOGO_PNG [start-end]
-# MODE: anim (600 frames), stills (half-size stills at STILLS=t,t,... seconds), sunprobe (sky check).
+# MODE: anim (600 frames), stills (STILLS=t,t,... seconds), scene (save only), sunprobe (sky check).
 # Hero building: generated in place, a concrete-and-glass office tower whose curtain wall is a procedural
 # grid, so the two windows the camera flies through are the facade's own cells on its own floor line.
 # City: procedurally generated office towers on a street grid, kept clear of the camera line.
@@ -13,18 +13,15 @@ from mathutils import Vector, Matrix
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from materials import (TEXDIR, setp, box_uv, pbr_material, plain_material, road_material, curtain_wall_material,
                        ceiling_material, carpet_material)
-
 argv = sys.argv[sys.argv.index("--") + 1:]
 MODE, OUT, ASSETS, DL, LOGO = argv[:5]
 RANGE = argv[5] if len(argv) > 5 else None
 os.makedirs(OUT, exist_ok=True)
 random.seed(11)
-
 FPS, T = 24, 25.0
 NF = int(T * FPS)
 W, H = 1536, 864
 def f(t): return int(round(t * FPS)) + 1
-
 # ------------------------------------------------------------------ scene
 bpy.ops.wm.read_factory_settings(use_empty=True)
 sc = bpy.context.scene
@@ -51,7 +48,6 @@ for vt in ("AgX", "Filmic"):
 for look in ("AgX - Punchy", "AgX - Medium High Contrast", "None"):
     if setp(vs, "look", look): break
 vs.exposure = float(os.environ.get("EXPOSURE", "0.5")); vs.gamma = 1.0
-
 # ------------------------------------------------------------------ helpers
 def link(o):
     sc.collection.objects.link(o); return o
@@ -101,7 +97,6 @@ def set_material(objs, pred, mat):
         if o.type != "MESH": continue
         for i, m in enumerate(o.data.materials):
             if m and pred(m.name): o.data.materials[i] = mat
-
 # ------------------------------------------------------------------ sky, sun, mist
 SUN_AZ, SUN_EL = -24.0, 12.0
 SUN_DIR = Vector((math.cos(math.radians(SUN_EL)) * math.cos(math.radians(SUN_AZ)),
@@ -142,13 +137,11 @@ setp(sc.view_layers[0], "use_pass_mist", True); setp(sc.view_layers[0], "use_pas
 sun = link(bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN")))
 sun.data.energy = float(os.environ.get("SUN_ENERGY", "12.0")); sun.data.color = (1.0, 0.78, 0.55); sun.data.angle = math.radians(1.2)
 sun.rotation_euler = (-SUN_DIR).to_track_quat("-Z", "Y").to_euler()
-
 # ------------------------------------------------------------------ ground, streets, lots
 ground_mat = pbr_material("Ground", "asphalt_02", tile=14.0, bump=0.1, tint=(0.55, 0.55, 0.56), rough_add=0.08)
 pavement = pbr_material("Pavement", "concrete_pavement_02", tile=3.0, bump=0.35, bump_dist=0.02, tint=(0.92, 0.91, 0.88), rough_add=0.05)
 bpy.ops.mesh.primitive_plane_add(size=1600, location=(0, 0, -0.02))
 ground = bpy.context.active_object; ground.name = "Ground"; ground.data.materials.append(ground_mat); box_uv(ground)
-
 BLOCK, STREET = 46.0, 14.0
 GRID_I, GRID_J = range(-5, 8), range(-5, 6)
 road_x = road_material("RoadAlongY", along="y", width=STREET)
@@ -169,7 +162,6 @@ for i in range(min(GRID_I) - 1, max(GRID_I) + 2):
     for j in range(min(GRID_J) - 1, max(GRID_J) + 2):
         if (i, j) == (0, 0) or (j == 0 and i >= 1): continue
         cube(f"Lot_{i}_{j}", (i * BLOCK, j * BLOCK, KERB / 2), (BLOCK - STREET, BLOCK - STREET, KERB), pavement)
-
 # ------------------------------------------------------------------ the hero tower (generated, so its windows are its own)
 office = curtain_wall_material("OfficeCurtainWall")
 FACADES = [office,
@@ -210,7 +202,6 @@ for (ya, yb) in CELLS:
         m.solver = "FAST"; bpy.ops.object.modifier_apply(modifier="cut")
     bpy.data.objects.remove(cutter)
 box_uv(tower)   # the boolean and the shell made new faces
-
 # the company mark near the top of the front face
 MARK = os.environ.get("MARK_PNG")
 if MARK and os.path.exists(MARK):
@@ -222,7 +213,6 @@ if MARK and os.path.exists(MARK):
     setp(sm, "surface_render_method", "BLENDED"); setp(sm, "blend_method", "BLEND")
     bpy.ops.mesh.primitive_plane_add(size=6.5, location=(FX + 0.03, TOWER_W / 2 - 5.5, TOWER_H - 5.0), rotation=(math.pi / 2, 0, math.pi / 2))
     sign = bpy.context.active_object; sign.name = "Sign"; sign.data.materials.append(sm)
-
 # ------------------------------------------------------------------ the office behind the windows
 wall = pbr_material("OfficeWall", "plastered_wall_02", tile=3.0, bump=0.15, bump_dist=0.01, tint=(0.97, 0.96, 0.93), rough_add=0.05, ao=0.4, interp="Cubic")
 carpet = carpet_material("Carpet")
@@ -496,74 +486,13 @@ for t, loc, tg, fs in path:
     cam.data.dof.aperture_fstop = fs; cam.data.dof.keyframe_insert("aperture_fstop", frame=f(t))
 smooth_keys(cam); smooth_keys(tgt)
 
-# ------------------------------------------------------------------ compositor: aerial haze, flare, glow
-COMP = "none"
-try:
-    if hasattr(sc, "compositing_node_group"):
-        tree = bpy.data.node_groups.new("HeroComp", "CompositorNodeTree"); sc.compositing_node_group = tree
-        setp(sc.render, "use_compositing", True)
-        try: tree.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
-        except Exception: pass
-        outn = tree.nodes.new("NodeGroupOutput")
-    else:
-        sc.use_nodes = True; tree = sc.node_tree
-        for n in list(tree.nodes): tree.nodes.remove(n)
-        outn = tree.nodes.new("CompositorNodeComposite")
-    rl = tree.nodes.new("CompositorNodeRLayers"); rl.scene = sc
-    img = rl.outputs["Image"]
-    # distance haze from the mist pass: the far city dissolves into the sky the way real air does
-    if "Mist" in rl.outputs:
-        try:
-            amt = tree.nodes.new("ShaderNodeMath"); amt.operation = "MULTIPLY"; amt.inputs[1].default_value = float(os.environ.get("HAZE", "0.32"))
-            tree.links.new(rl.outputs["Mist"], amt.inputs[0])
-            geo = tree.nodes.new("ShaderNodeMath"); geo.operation = "LESS_THAN"; geo.inputs[1].default_value = 1.0e5   # the sky's depth is effectively infinite
-            tree.links.new(rl.outputs["Depth"] if "Depth" in rl.outputs else rl.outputs["Z"], geo.inputs[0])
-            amt2 = tree.nodes.new("ShaderNodeMath"); amt2.operation = "MULTIPLY"; tree.links.new(amt.outputs[0], amt2.inputs[0]); tree.links.new(geo.outputs[0], amt2.inputs[1])
-            amt = amt2
-            hz = tree.nodes.new("ShaderNodeMix"); hz.data_type = "RGBA"; hz.inputs[7].default_value = (HAZE_COL[0], HAZE_COL[1], HAZE_COL[2], 1)
-            tree.links.new(amt.outputs[0], hz.inputs[0]); tree.links.new(img, hz.inputs[6]); img = hz.outputs[2]
-            COMP = "haze "
-        except Exception as e:
-            COMP = "nohaze(%s) " % str(e)[:60]
-    def glare(kind, **kw):
-        g = tree.nodes.new("CompositorNodeGlare"); setp(g, "glare_type", kind)
-        for k, v in kw.items():
-            done = False
-            if k in g.inputs:
-                try: g.inputs[k].default_value = v; done = True
-                except Exception: pass
-            if not done: setp(g, k, v)
-        return g
-    g1 = glare("STREAKS", **{"Threshold": 2.6, "Strength": 0.22, "Streaks": 4, "Streaks Angle": math.radians(20), "Size": 7, "threshold": 2.6, "mix": -0.4, "streaks": 4, "angle_offset": math.radians(20), "iterations": 4})
-    g2 = glare("FOG_GLOW", **{"Threshold": 1.8, "Strength": 0.10, "Size": 7, "threshold": 1.8, "mix": -0.7, "size": 7})
-    tree.links.new(img, g1.inputs["Image"]); tree.links.new(g1.outputs["Image"], g2.inputs["Image"]); tree.links.new(g2.outputs["Image"], outn.inputs[0])
-    COMP += "ok"
-except Exception as e:
-    COMP = "failed: " + str(e)[:120]
+from render_output import configure_compositor, write_scene
+COMP = configure_compositor(sc, HAZE_COL)
 
 # ------------------------------------------------------------------ output
+from surface_details import refine_surfaces
+refine_surfaces(desk)
 info = {"tower_h": round(TOWER_H, 1), "window_center": [round(v, 2) for v in WC],
         "pane": [round(v, 2) for v in PANE], "floor_z": round(FLOOR_Z, 2), "room": [round(RX0, 2), round(RX1, 2), round(RY0, 2), round(RY1, 2)],
         "monitor": [round(v, 2) for v in MC], "buildings": placed, "compositor": COMP, "sky": SKY, "textures": TEXDIR}
-bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, "hero-city.blend"))
-sc.render.image_settings.file_format = "PNG"; sc.render.image_settings.color_mode = "RGB"
-if MODE == "stills":
-    sc.render.resolution_percentage = int(os.environ.get("PCT", "50"))
-    times = [0.0, 4.2, 8.3, 9.6, 10.4, 11.2, 12.6, 14.5, 15.6, 17.0, 18.8, 21.6, 25.0]
-    if os.environ.get("STILLS"): times = [float(x) for x in os.environ["STILLS"].split(",")]
-    import time as _time
-    for t in times:
-        t0 = _time.time(); sc.frame_set(f(t)); sc.render.filepath = os.path.join(OUT, "still_%05.2f.png" % t); bpy.ops.render.render(write_still=True)
-        print("STILL t=%.2f took %.1fs" % (t, _time.time() - t0))
-elif MODE == "sunprobe":
-    # a very wide frame straight at the lamp's sun: the sky's bright spot should sit dead centre
-    sc.render.resolution_percentage = 25; cam.animation_data_clear(); tgt.animation_data_clear()
-    cam.location = (0, 0, 140); tgt.location = Vector((0, 0, 140)) + SUN_DIR * 100; cam.data.lens = 12; cam.data.dof.use_dof = False
-    sc.render.filepath = os.path.join(OUT, "sunprobe.png"); bpy.ops.render.render(write_still=True)
-elif MODE == "anim":
-    fd = os.path.join(OUT, "frames"); os.makedirs(fd, exist_ok=True)
-    a, b = (int(x) for x in RANGE.split("-")) if RANGE else (1, NF)
-    sc.frame_start, sc.frame_end = a, b
-    sc.render.use_overwrite = False; sc.render.use_placeholder = False
-    sc.render.filepath = os.path.join(fd, "f_"); bpy.ops.render.render(animation=True)
-print("INFO_JSON=" + json.dumps(info))
+write_scene(sc, MODE, OUT, RANGE, NF, f, info, cam, tgt, SUN_DIR)
