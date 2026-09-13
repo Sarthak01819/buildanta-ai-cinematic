@@ -12,8 +12,8 @@ export const MANIFEST = [
   { kind: 'font', spec: '400 1em "JetBrains Mono"', bytes: 40404, label: 'Type' },
   { kind: 'font', spec: '400 1em "Pixelify"', bytes: 12016, label: 'Type' },
   { kind: 'image', url: '/brand/buildanta-mark.svg', bytes: 7761, label: 'Stills' },
-  { kind: 'image', url: POSTER_URL, bytes: 237965, label: 'Stills' },
-  { kind: 'image', url: '/assets/hero-threshold.jpg', bytes: 80738, label: 'Stills' },
+  { kind: 'image', url: POSTER_URL, bytes: 237994, label: 'Stills' },
+  { kind: 'image', url: '/assets/hero-threshold.jpg', bytes: 66874, label: 'Stills' },
   { kind: 'image', url: '/assets/certificate-preview.webp', bytes: 85684, label: 'Stills' },
   { kind: 'video', url: VIDEO_URL, bytes: VIDEO_BYTES, label: 'Flythrough' },
 ]

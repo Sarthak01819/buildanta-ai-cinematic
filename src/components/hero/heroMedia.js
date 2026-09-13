@@ -1,6 +1,6 @@
 /* The media behind the scrub hero. Paths are absolute so every route resolves them. */
-export const VIDEO_URL = '/assets/hero-scrub.mp4'
-export const VIDEO_BYTES = 12241379 /* the real size, used when Content-Length is missing */
+export const VIDEO_URL = '/assets/hero-scrub.mp4?v=320039012da6'
+export const VIDEO_BYTES = 10827532 /* the real size, used when Content-Length is missing */
 export const POSTER_URL = '/assets/hero-poster.jpg'
 
 /* The five static gates. The same list as the media query block in motion.css,
